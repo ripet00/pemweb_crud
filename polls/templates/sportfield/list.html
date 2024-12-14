@@ -19,19 +19,54 @@
         <!-- Data akan diisi dengan jQuery -->
     </tbody>
 </table>
+
 <!-- Modal untuk input data lapangan -->
-<div id="addFieldModal" class="hidden">
-    <form id="addFieldForm" class="space-y-4 mt-8">
-        <input type="text" id="name" placeholder="Nama Lapangan" class="p-2 border rounded w-full">
-        <input type="text" id="location" placeholder="Lokasi" class="p-2 border rounded w-full">
-        <input type="text" id="sport_type" placeholder="Jenis Olahraga" class="p-2 border rounded w-full">
-        <input type="number" id="price_per_hour" placeholder="Harga per Jam" class="p-2 border rounded w-full">
-        <input type="text" id="facilities" placeholder="Fasilitas" class="p-2 border rounded w-full">
-        <label class="block">
-            <input type="checkbox" id="is_available"> Tersedia
-        </label>
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Tambah Lapangan</button>
-    </form>
+<div id="addFieldModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white p-6 rounded shadow-md w-1/2">
+        <h2 class="text-xl font-bold mb-4">Tambah Lapangan Baru</h2>
+        <form id="addFieldForm" class="space-y-4">
+            <div>
+                <label for="name" class="block text-sm font-medium">Nama Lapangan</label>
+                <input type="text" id="name" placeholder="Nama Lapangan" class="p-2 border rounded w-full" required>
+            </div>
+            <div>
+                <label for="location" class="block text-sm font-medium">Lokasi</label>
+                <input type="text" id="location" placeholder="Lokasi" class="p-2 border rounded w-full" required>
+            </div>
+            <div>
+                <label for="sport_type" class="block text-sm font-medium">Jenis Olahraga</label>
+                <input type="text" id="sport_type" placeholder="Jenis Olahraga" class="p-2 border rounded w-full" required>
+            </div>
+            <div>
+                <label for="price_per_hour" class="block text-sm font-medium">Harga per Jam</label>
+                <input type="number" id="price_per_hour" placeholder="Harga per Jam" class="p-2 border rounded w-full" required>
+            </div>
+            <div>
+                <label for="facilities" class="block text-sm font-medium">Fasilitas</label>
+                <input type="text" id="facilities" placeholder="Fasilitas" class="p-2 border rounded w-full" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium">
+                    <input type="checkbox" id="is_available" class="mr-2"> Tersedia
+                </label>
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button
+                    type="button"
+                    onclick="hideAddModal()"
+                    class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                    Batal
+                </button>
+                <button
+                    type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Tambah Lapangan
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -77,8 +112,14 @@
         return cookieValue;
     }
 
+    // Menampilkan modal
     function showAddModal() {
         document.getElementById('addFieldModal').classList.remove('hidden');
+    }
+
+    // Menyembunyikan modal
+    function hideAddModal() {
+        document.getElementById('addFieldModal').classList.add('hidden');
     }
 
     // Menambah lapangan menggunakan AJAX
@@ -104,7 +145,7 @@
             success: function(response) {
                 alert(response.message);
                 loadFields();  // reload data setelah berhasil tambah
-                $('#addFieldModal').addClass('hidden');
+                hideAddModal();
             },
             error: function(xhr, status, error) {
                 alert("Terjadi kesalahan, silakan coba lagi.");
