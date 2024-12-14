@@ -1,106 +1,190 @@
 <!-- templates/sportfield/field_detail.html -->
-{% extends 'index.html' %}
- {% block content %}
+{% extends 'index.html' %} {% block content %}
 
-<a href="/sportfield/list/" class=" py-8  text-black text-2xl font-bold"
- > ← Kembali ke Daftar Lapangan </a
+<a href="/sportfield/list/" class="py-8 text-black text-2xl font-bold">
+  ← Kembali ke Daftar Lapangan
+</a>
+
+<h1 class="text-2xl font-bold mb-4 mt-16">Detail Lapangan</h1>
+
+<!-- Tampilkan Detail Lapangan -->
+<div class="bg-gray-100 p-6 rounded shadow mb-6">
+  <p><strong>Nama Lapangan:</strong> {{ field.name }}</p>
+  <p><strong>Lokasi:</strong> {{ field.location }}</p>
+  <p><strong>Jenis Olahraga:</strong> {{ field.sport_type }}</p>
+  <p>
+    <strong>Harga per Jam:</strong> Rp {{ field.fielddetail.price_per_hour }}
+  </p>
+  <p><strong>Fasilitas:</strong> {{ field.fielddetail.facilities }}</p>
+  <p>
+    <strong>Ketersediaan:</strong>
+    {% if field.fielddetail.is_available %} Tersedia {% else %} Tidak Tersedia
+    {% endif %}
+  </p>
+</div>
+
+<!-- Tombol untuk Edit dan Hapus -->
+<div class="flex gap-4">
+  <!-- Button Edit -->
+  <button id="editButton" class="bg-yellow-600 text-white px-4 py-2 rounded">
+    Edit Data
+  </button>
+
+  <!-- Button Hapus -->
+  <button id="deleteButton" class="bg-red-600 text-white px-4 py-2 rounded">
+    Hapus Data
+  </button>
+</div>
+
+<!-- Form Edit (Disembunyikan secara default) -->
+<form
+  method="POST"
+  id="editFieldForm"
+  class="bg-white p-6 rounded shadow mt-6 hidden"
 >
+  {% csrf_token %}
+  <h2 class="text-xl font-bold mb-4">Edit Lapangan</h2>
+  <div class="mb-4">
+    <label for="editName" class="block text-sm font-medium"
+      >Nama Lapangan</label
+    >
+    <input
+      id="editName"
+      name="name"
+      type="text"
+      value="{{ field.name }}"
+      required
+      class="border rounded px-4 py-2 w-full"
+    />
+  </div>
 
-<h1 class="text-4xl font-bold mb-4 mt-16">Detail Lapangan</h1>
+  <div class="mb-4">
+    <label for="editLocation" class="block text-sm font-medium">Lokasi</label>
+    <input
+      id="editLocation"
+      name="location"
+      type="text"
+      value="{{ field.location }}"
+      required
+      class="border rounded px-4 py-2 w-full"
+    />
+  </div>
 
-<h2 class="text-2xl font-bold mb-4">{{ field.name }}</h2>
-<div class="mb-4"><strong>Lokasi:</strong> {{ field.location }}</div>
-<div class="mb-4"><strong>Jenis Olahraga:</strong> {{ field.sport_type }}</div>
-<div class="mb-4">
-  <strong>Harga per Jam:</strong> {{ field_detail.price_per_hour }}
-</div>
-<div class="mb-4">
-  <strong>Fasilitas:</strong> {{ field_detail.facilities }}
-</div>
-<div class="mb-4">
-  <strong>Ketersediaan:</strong> {% if field_detail.is_available %} Tersedia {%
-  else %} Tidak Tersedia {% endif %}
-</div>
+  <div class="mb-4">
+    <label for="editSportType" class="block text-sm font-medium"
+      >Jenis Olahraga</label
+    >
+    <input
+      id="editSportType"
+      name="sport_type"
+      type="text"
+      value="{{ field.sport_type }}"
+      required
+      class="border rounded px-4 py-2 w-full"
+    />
+  </div>
 
-<button  onclick="deleteField('${field.id}')" class="px-4 py-2 bg-red-600 text-white rounded">Hapus Lapangan</button>
-<button  onclick="showEditModal('${field.id}')" class="px-4 py-2 bg-yellow-600 text-white rounded">Edit Lapangan</button>
-<!-- <a
-  onclick="deleteField('${field.id}')"
-  class="px-4 py-2 bg-red-600 text-white rounded"
-  >Hapus Lapangan</a
-> -->
-<!-- <a
-  onclick="showEditModal('${field.id}')"
-  class="px-4 py-2 bg-green-600 text-white rounded"
-  >Edit Lapangan</a
-> -->
+  <div class="mb-4">
+    <label for="editPricePerHour" class="block text-sm font-medium"
+      >Harga per Jam</label
+    >
+    <input
+      id="editPricePerHour"
+      name="price_per_hour"
+      type="number"
+      step="0.01"
+      value="{{ field.fielddetail.price_per_hour }}"
+      required
+      class="border rounded px-4 py-2 w-full"
+    />
+  </div>
 
-<div id="editForm" class="mt-4 hidden">
-    <h2 class="text-xl font-bold mb-4">Edit Lapangan</h2>
-    <form method="POST" id="updateFieldForm">
-        {% csrf_token %}
-        <label for="editName" class="block mb-2">Nama:</label>
-        <input id="editName" name="name" type="text" class="block mb-4 w-full p-2 border" value="{{ field.name }}" required>
+  <div class="mb-4">
+    <label for="editFacilities" class="block text-sm font-medium"
+      >Fasilitas</label
+    >
+    <input
+      id="editFacilities"
+      name="facilities"
+      type="text"
+      value="{{ field.fielddetail.facilities }}"
+      required
+      class="border rounded px-4 py-2 w-full"
+    />
+  </div>
 
-        <label for="editLocation" class="block mb-2">Lokasi:</label>
-        <input id="editLocation" name="location" type="text" class="block mb-4 w-full p-2 border" value="{{ field.location }}" required>
+  <div class="mb-4">
+    <label for="editIsAvailable" class="block text-sm font-medium"
+      >Ketersediaan</label
+    >
+    <input id="editIsAvailable" name="is_available" type="checkbox" {{
+    field.fielddetail.is_available|yesno:"checked," }} class="h-5 w-5">
+  </div>
 
-        <label for="editSportType" class="block mb-2">Jenis Olahraga:</label>
-        <input id="editSportType" name="sport_type" type="text" class="block mb-4 w-full p-2 border" value="{{ field.sport_type }}" required>
-
-        <label for="editPricePerHour" class="block mb-2">Harga Per Jam:</label>
-        <input id="editPricePerHour" name="price_per_hour" type="text" class="block mb-4 w-full p-2 border" value="{{ field.fielddetail.price_per_hour }}" required>
-
-        <label for="editFacilities" class="block mb-2">Fasilitas:</label>
-        <input id="editFacilities" name="facilities" type="text" class="block mb-4 w-full p-2 border" value="{{ field.fielddetail.facilities }}" required>
-
-        <label for="editIsAvailable" class="block mb-2">Tersedia:</label>
-        <input id="editIsAvailable" name="is_available" type="checkbox" class="mb-4" {{ field.fielddetail.is_available|yesno:"checked," }}>
-        
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Simpan</button>
-    </form>
-</div>
+  <!-- Tombol Simpan -->
+  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+    Simpan Perubahan
+  </button>
+</form>
 
 <script>
-    // Fungsi untuk menampilkan form edit
-    function showEditForm() {
-        document.getElementById("editForm").classList.remove("hidden");
-    }
+  // Tampilkan form edit ketika tombol Edit diklik
+  document.getElementById("editButton").onclick = function () {
+    document.getElementById("editFieldForm").classList.remove("hidden");
+  };
 
-    // Submit form untuk update lapangan
-    document.getElementById("updateFieldForm").onsubmit = function(e) {
-        e.preventDefault();
-        const fieldId = "{{ field.id }}"; // Ambil ID lapangan yang ada di context
-        const formData = new FormData(this);
+  // Kirim data update ke server menggunakan API
+  document.getElementById("editFieldForm").onsubmit = function (e) {
+    e.preventDefault(); // Cegah refresh halaman
+    const fieldId = "{{ field.id }}"; // ID lapangan dari context
+    const formData = new FormData(this); // Ambil data dari form
 
-        // Kirim data update ke API
-        fetch(`/sportfield/fields/update/${fieldId}/`, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
-            }
+    // Kirim permintaan update ke server
+    fetch(`/sportfield/fields/update/${fieldId}/`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
+          .value,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message); // Tampilkan pesan sukses/gagal
+        if (data.message === "Lapangan berhasil diperbarui!") {
+          location.reload(); // Refresh halaman jika berhasil
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan saat memperbarui lapangan.");
+      });
+  };
+
+  // Kirim permintaan hapus data ke server
+  document.getElementById("deleteButton").onclick = function () {
+    const fieldId = "{{ field.id }}";
+    if (confirm("Apakah Anda yakin ingin menghapus lapangan ini?")) {
+      fetch(`/sportfield/fields/delete/${fieldId}/`, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
+            .value,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message);
+          if (data.message === "Lapangan berhasil dihapus!") {
+            window.location.href = "/sportfield/list/"; // Redirect ke daftar lapangan
+          }
         })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            if (data.message === 'Lapangan berhasil diperbarui!') {
-                // Perbarui data yang ditampilkan di halaman
-                document.getElementById("fieldName").innerText = formData.get('name');
-                document.getElementById("fieldLocation").innerText = formData.get('location');
-                document.getElementById("fieldSportType").innerText = formData.get('sport_type');
-                document.getElementById("fieldPricePerHour").innerText = formData.get('price_per_hour');
-                document.getElementById("fieldFacilities").innerText = formData.get('facilities');
-                document.getElementById("fieldIsAvailable").innerText = formData.get('is_available') === 'on' ? 'Ya' : 'Tidak';
-                // Sembunyikan form edit
-                document.getElementById("editForm").classList.add("hidden");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat memperbarui lapangan.');
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Terjadi kesalahan saat menghapus lapangan.");
         });
-    };
+    }
+  };
 </script>
 
 {% endblock %}

@@ -64,19 +64,30 @@ def update_field(request, field_id):
     if request.method == 'POST':
         try:
             field = Field.objects.get(id=field_id)
-            field.name = request.POST.get('name', field.name)
-            field.location = request.POST.get('location', field.location)
-            field.sport_type = request.POST.get('sport_type', field.sport_type)
+            field.name = request.POST.get('name')
+            field.location = request.POST.get('location')
+            field.sport_type = request.POST.get('sport_type')
+            field.fielddetail.price_per_hour = request.POST.get('price_per_hour')
+            field.fielddetail.facilities = request.POST.get('facilities')
+            field.fielddetail.is_available = request.POST.get('is_available') == 'on'
             field.save()
-
-            # Update FieldDetail jika diperlukan
-            field_detail = field.fielddetail
-            field_detail.price_per_hour = request.POST.get('price_per_hour', field_detail.price_per_hour)
-            field_detail.facilities = request.POST.get('facilities', field_detail.facilities)
-            field_detail.is_available = request.POST.get('is_available', field_detail.is_available) == 'true'
-            field_detail.save()
-
-            return JsonResponse({'message': 'Lapangan berhasil diperbarui!'})
+            field.fielddetail.save()
+            return JsonResponse({'message': 'Lapangan berhasil diperbarui!'}, status=200)
         except Field.DoesNotExist:
             return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
-    return JsonResponse({'message': 'Metode tidak diizinkan'}, status=405)
+        except Exception as e:
+            return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
+    return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
+
+
+def delete_field(request, field_id):
+    if request.method == 'POST':
+        try:
+            field = Field.objects.get(id=field_id)
+            field.delete()
+            return JsonResponse({'message': 'Lapangan berhasil dihapus!'}, status=200)
+        except Field.DoesNotExist:
+            return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
+    return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
