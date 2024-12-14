@@ -47,11 +47,6 @@ def add_field(request):
         return JsonResponse({'message': 'Field berhasil ditambahkan!'})
 
 def field_detail(request, id):
-    # try:
-    #     field = Field.objects.get(id=field_id)
-    #     return render(request, 'polls/detail.html', {'field': field})
-    # except Field.DoesNotExist:
-    #     return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
     field = get_object_or_404(Field, id=id)  # Mencari lapangan berdasarkan ID
     field_detail = field.fielddetail  # Mengakses FieldDetail terkait
     
