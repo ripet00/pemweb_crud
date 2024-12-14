@@ -50,12 +50,15 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CSRF_COOKIE_NAME = 'csrftoken'  # Nama cookie CSRF
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'  # Nama header CSRF
+
 ROOT_URLCONF = "mysite.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [], #BASE_DIR / "mysite/polls/templates"
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

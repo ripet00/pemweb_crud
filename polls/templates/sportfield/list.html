@@ -1,0 +1,115 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">Daftar Lapangan</h1>
+<button class="px-4 py-2 bg-blue-600 text-white rounded mb-4" onclick="showAddModal()">Tambah Lapangan</button>
+
+<table class="min-w-full bg-white border">
+    <thead>
+        <tr class="bg-gray-800 text-white">
+            <th class="px-6 py-3">Nama</th>
+            <th class="px-6 py-3">Lokasi</th>
+            <th class="px-6 py-3">Jenis Olahraga</th>
+            <th class="px-6 py-3">Harga</th>
+            <th class="px-6 py-3">Fasilitas</th>
+            <th class="px-6 py-3">Aksi</th>
+        </tr>
+    </thead>
+    <tbody id="fieldTable" class="divide-y">
+        <!-- Data akan diisi dengan jQuery -->
+    </tbody>
+</table>
+<!-- Modal untuk input data lapangan -->
+<div id="addFieldModal" class="hidden">
+    <form id="addFieldForm" class="space-y-4">
+        <input type="text" id="name" placeholder="Nama Lapangan" class="p-2 border rounded w-full">
+        <input type="text" id="location" placeholder="Lokasi" class="p-2 border rounded w-full">
+        <input type="text" id="sport_type" placeholder="Jenis Olahraga" class="p-2 border rounded w-full">
+        <input type="number" id="price_per_hour" placeholder="Harga per Jam" class="p-2 border rounded w-full">
+        <input type="text" id="facilities" placeholder="Fasilitas" class="p-2 border rounded w-full">
+        <label class="block">
+            <input type="checkbox" id="is_available"> Tersedia
+        </label>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Tambah Lapangan</button>
+    </form>
+</div>
+
+<script>
+    // Load data dengan AJAX
+    function loadFields() {
+        $.getJSON('/sportfield/fields/', function(data) {
+            let rows = '';
+            data.forEach(field => {
+                rows += `
+                    <tr>
+                        <td class="px-6 py-4">${field.name}</td>
+                        <td class="px-6 py-4">${field.location}</td>
+                        <td class="px-6 py-4">${field.sport_type}</td>
+                        <td class="px-6 py-4">${field.price_per_hour}</td>
+                        <td class="px-6 py-4">${field.facilities}</td>
+                        <td class="px-6 py-4">
+                            <a href="/sportfield/fields/${field.id}/" class="text-blue-500">Lihat Detail</a>
+                        </td>
+                    </tr>
+                `;
+            });
+            $('#fieldTable').html(rows);
+        });
+    }
+
+    $(document).ready(function() {
+        loadFields();
+    });
+
+    // Fungsi untuk mengambil token CSRF dari cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showAddModal() {
+        document.getElementById('addFieldModal').classList.remove('hidden');
+    }
+
+    // Menambah lapangan menggunakan AJAX
+    $('#addFieldForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const data = {
+            name: $('#name').val(),
+            location: $('#location').val(),
+            sport_type: $('#sport_type').val(),
+            price_per_hour: $('#price_per_hour').val(),
+            facilities: $('#facilities').val(),
+            is_available: $('#is_available').is(':checked')
+        };
+
+        $.ajax({
+            url: '/sportfield/fields/add/',
+            type: 'POST',
+            data: data,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')  // Menyertakan CSRF token di header
+            },
+            success: function(response) {
+                alert(response.message);
+                loadFields();  // reload data setelah berhasil tambah
+                $('#addFieldModal').addClass('hidden');
+            },
+            error: function(xhr, status, error) {
+                alert("Terjadi kesalahan, silakan coba lagi.");
+            }
+        });
+    });
+</script>
+{% endblock %}
