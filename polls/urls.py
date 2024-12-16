@@ -12,12 +12,12 @@ urlpatterns = [
     path('fields/', views.list_fields, name='list_fields'),               # List Lapangan (JSON)
     path('fields/add/', views.add_field, name='add_field'),               # Tambah Lapangan
     path('fields/<int:field_id>/', views.field_detail, name='field_detail'),  # Detail Lapangan
-    path('fields/update/<int:field_id>/', views.update_field, name='update_field'),  # Edit Lapangan
-    # path('fields/delete/<int:field_id>/', views.delete_field, name='delete_field'),  # Hapus Lapangan
+    # path('fields/update/<int:field_id>/', views.update_field, name='update_field'),  # Edit Lapangan
+    path('fields/delete/<int:field_id>/', views.delete_field, name='delete_field'),  # Hapus Lapangan
 
     # CRUD Fasilitas
     path('fields/<int:field_id>/facilities/add/', views.add_facility, name='add_facility'),  # Tambah Fasilitas
     # path('facilities/update/<int:facility_id>/', views.edit_facility, name='edit_facility'),  # Edit Fasilitas
-    # path('facilities/delete/<int:facility_id>/', views.delete_facility, name='delete_facility'),  # Hapus Fasilitas
+    path('facilities/delete/<int:facility_id>/', views.delete_facility, name='delete_facility'),  # Hapus Fasilitas
 
 ]

@@ -246,24 +246,24 @@
   //     .catch((error) => console.error("Error:", error)); // Tangani error jika ada
   // }
 
-  // // Hapus fasilitas
-  // function deleteFacility(facility_id) {
-  //   if (confirm("Apakah Anda yakin ingin menghapus fasilitas ini?")) {
-  //     $.ajax({
-  //       url: `/facilities/delete/${facility_id}/`,
-  //       type: "POST",
-  //       headers: {
-  //         "X-CSRFToken": getCookie("csrftoken"),
-  //       },
-  //       success: function (response) {
-  //         alert(response.message);
-  //         location.reload();
-  //       },
-  //       error: function () {
-  //         alert("Terjadi kesalahan, silakan coba lagi.");
-  //       },
-  //     });
-  //   }
-  // }
+  // Hapus fasilitas
+  function deleteFacility(facility_id) {
+    if (confirm("Apakah Anda yakin ingin menghapus fasilitas ini?")) {
+      $.ajax({
+        url: `/facilities/delete/${facility_id}/`,
+        type: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: function (response) {
+          alert(response.message);
+          location.reload();
+        },
+        error: function () {
+          alert("Terjadi kesalahan, silakan coba lagi.");
+        },
+      });
+    }
+  }
 </script>
 {% endblock %}

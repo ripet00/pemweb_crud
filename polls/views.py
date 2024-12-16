@@ -33,28 +33,6 @@ def list_fields(request):
 def field_detail(request, field_id):
     field = get_object_or_404(Field, id=field_id)
     facilities = field.facilities.all()
-    # data = {
-    #     'field': {
-    #         'id': field.id,
-    #         'name': field.name,
-    #         'location': field.location,
-    #         'sport_type' : field.sport_type,
-    #         'operating_hours': field.operating_hours,
-    #         'price_per_hour': float(field.price_per_hour),
-    #         'is_available': field.is_available,
-    #     },
-    #     'facilities': [
-    #         {
-    #             'id': facility.id,
-    #             'name': facility.name,
-    #             'description': facility.description,
-    #             'is_available': facility.is_available,
-    #         }
-    #         for facility in facilities
-    #     ]
-    # }
-    # return JsonResponse(data)
-    # Kirim data ke template
     return render(request, 'sportfield/field_detail.html', {
         'field': field,            # Mengirim objek field
         'facilities': facilities   # Mengirim daftar fasilitas terkait field
@@ -82,41 +60,43 @@ def add_field(request):
         return JsonResponse({'message': 'Lapangan berhasil ditambahkan!'})
 
 
-# Edit Lapangan
-def update_field(request, field_id):
+# # Edit Lapangan
+# def update_field(request, field_id):
+#     if request.method == 'POST':
+#         try:
+#             field = Field.objects.get(id=field_id)
+#             field.name = request.POST.get('name')
+#             field.location = request.POST.get('location')
+#             field.sport_type = request.POST.get('sport_type')
+#             field.operating_hours = request.POST.get('operating_hours')
+#             field.price_per_hour = float(request.POST.get('price_per_hour'))
+#             field.is_available = request.POST.get('is_available') == 'on'
+            
+#             field.save()
+
+#             return JsonResponse({'message': 'Lapangan berhasil diperbarui!'}, status=200)
+#         except Field.DoesNotExist:
+#             return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
+#         except Exception as e:
+#             return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
+#     return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
+
+
+
+# Hapus lapangan
+def delete_field(request, field_id):
     if request.method == 'POST':
         try:
             field = Field.objects.get(id=field_id)
-            field.name = request.POST.get('name')
-            field.location = request.POST.get('location')
-            field.sport_type = request.POST.get('sport_type')
-            field.operating_hours = request.POST.get('operating_hours')
-            field.price_per_hour = float(request.POST.get('price_per_hour'))
-            field.is_available = request.POST.get('is_available') == 'on'
-            
-            field.save()
+            field.delete()
 
-            return JsonResponse({'message': 'Lapangan berhasil diperbarui!'}, status=200)
+            return JsonResponse({'message': 'Lapangan berhasil dihapus!'})
         except Field.DoesNotExist:
             return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
         except Exception as e:
             return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
     return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
 
-
-
-# # Hapus lapangan
-# def delete_field(request, field_id):
-#     if request.method == 'POST':
-#         try:
-#             field = Field.objects.get(id=field_id)
-#             field.delete()
-#             return JsonResponse({'message': 'Lapangan berhasil dihapus!'})
-#         except Field.DoesNotExist:
-#             return JsonResponse({'message': 'Lapangan tidak ditemukan!'}, status=404)
-#         except Exception as e:
-#             return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
-#     return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
 
 # Tambah fasilitas
 def add_facility(request, field_id):
@@ -153,17 +133,17 @@ def add_facility(request, field_id):
 #     return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
 
 
-# # Hapus fasilitas
-# def delete_facility(request, facility_id):
-#     if request.method == 'POST':
-#         try:
-#             facility = Facility.objects.get(id=facility_id)
-#             facility.delete()
-#             return JsonResponse({'message': 'Fasilitas berhasil dihapus!'})
-#         except Facility.DoesNotExist:
-#             return JsonResponse({'message': 'Fasilitas tidak ditemukan!'}, status=404)
-#         except Exception as e:
-#             return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
-#     return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
+# Hapus fasilitas
+def delete_facility(request, facility_id):
+    if request.method == 'POST':
+        try:
+            facility = Facility.objects.get(id=facility_id)
+            facility.delete()
+            return JsonResponse({'message': 'Fasilitas berhasil dihapus!'})
+        except Facility.DoesNotExist:
+            return JsonResponse({'message': 'Fasilitas tidak ditemukan!'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': 'Terjadi kesalahan: ' + str(e)}, status=400)
+    return JsonResponse({'message': 'Metode tidak diizinkan!'}, status=405)
 
 
