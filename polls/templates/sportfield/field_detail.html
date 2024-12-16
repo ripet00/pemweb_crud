@@ -19,18 +19,26 @@
     <thead>
       <tr class="bg-gray-800 text-white">
         <th class="text-start px-6 py-3">Nama Fasilitas</th>
+        <th class="text-center px-6 py-3">Deskripsi</th>
+        <th class="text-center px-6 py-3">Status</th>
         <th class="py-3">Aksi</th>
       </tr>
     </thead>
     <tbody id="fieldTable" class="divide-y">
       {% for facility in facilities %}
-      <tr>
-        <td class="text-start px-6 py-4">{{ facility.name }}</td>
+      <tr id="facility-{{ facility.id }}">
+        <td class="facility-name text-start px-6 py-4">{{ facility.name }}</td>
+        <td class="facility-description text-center px-6 py-4">{{ facility.description }}</td>
+        <td class="facility-status text-center px-6 py-4">
+          <p>
+            {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+          </p>
+        </td>
         <td class="text-center px-6 py-4">
           <button
             id="editButton"
             class="w-20 bg-yellow-500 px-4 py-2 rounded"
-            onclick="editFacility('{{ facility.id }}')"
+            onclick="showEditFacilityModal('{{ facility.id }}')"
           >
             Edit
           </button>
@@ -99,49 +107,79 @@
   </div>
 </div>
 
-<!-- <table>
-  <thead>
-    <tr>
-      <th>Nama Fasilitas</th>
-      <th>Deskripsi</th>
-      <th>Ketersediaan</th>
-      <th>Aksi</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for facility in facilities %}
-    <tr>
-      <td>
-        <input
-          type="text"
-          id="facilityName-{{ facility.id }}"
-          value="{{ facility.name }}"
-        />
-      </td>
-      <td>
-        <textarea id="facilityDescription-{{ facility.id }}">
-{{ facility.description }}</textarea
+<div
+  id="editModal"
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden"
+>
+  <!-- Modal Content -->
+  <div class="bg-white w-2/4 max-w-lg rounded-lg shadow-lg p-6 relative">
+    <h2 class="text-xl font-bold mb-4">Edit fasilitas</h2>
+
+    <form method="POST" id="editFacilityForm">
+      {% csrf_token %}
+      <!-- Nama Lapangan -->
+      <div class="mb-4">
+        <label for="editName" class="block text-sm font-medium"
+          >Nama fasilitas</label
         >
-      </td>
-      <td>
         <input
-          type="checkbox"
-          id="facilityAvailable-{{ facility.id }}"
-          {%
-          if
-          facility.is_available
-          %}checked{%
-          endif
-          %}
+          id="editName"
+          name="name"
+          type="text"
+          value="{{ facilities.name }}"
+          required
+          class="border rounded px-4 py-2 w-full"
         />
-      </td>
-      <td>
-        <button onclick="editFacility('{{ facility.id }}')">Simpan</button>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table> -->
+      </div>
+
+      <!-- Lokasi -->
+      <div class="mb-4">
+        <label for="editDescription" class="block text-sm font-medium"
+          >Deskripsi</label
+        >
+        <input
+          id="editDescription"
+          name="description"
+          type="text"
+          value="{{ facilities.description }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Ketersediaan -->
+      <div class="mb-4">
+        <label for="editIsAvailable" class="block text-sm font-medium"
+          >Ketersediaan</label
+        >
+        <input id="editIsAvailable" name="is_available" type="checkbox" {{
+        field.is_available|yesno:"checked," }} class="h-5 w-5" />
+      </div>
+
+      <!-- Tombol -->
+      <div class="flex justify-end gap-4">
+        <button
+          type="button"
+          onclick="hideeditform()"
+          class="bg-gray-500 text-white px-4 py-2 rounded"
+        >
+          Batal
+        </button>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+
+    <!-- Tombol Tutup di Pojok -->
+    <button
+      class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+      onclick="hideeditform()"
+    >
+      &times;
+    </button>
+  </div>
+</div>
 
 <script>
   // Fungsi untuk mendapatkan CSRF token
@@ -170,6 +208,14 @@
     document.getElementById("addFacilityModal").classList.add("hidden");
   }
 
+  // Tampilkan form edit ketika tombol Edit diklik
+  function showeditform() {
+    document.getElementById("editModal").classList.remove("hidden");
+  }
+  function hideeditform() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
+
   function loadFields() {
     $.getJSON("/fields/", function (data) {
       let rows = "";
@@ -190,61 +236,94 @@
   }
 
   // Tambah fasilitas menggunakan AJAX
-  $("#addFacilityForm").on("submit", function (e) {
+  $("#editFacilityForm").on("submit", function (e) {
     e.preventDefault();
 
+    const facilityId = $("#editFacilityForm").data("facility-id"); // Pastikan ID disimpan di atribut form
     const data = {
-      name: $("#facilityName").val(),
-      description: $("#facilityDescription").val(),
-      is_available: $("#facilityAvailability").is(":checked"),
+        name: $("#editName").val(),
+        description: $("#editDescription").val(),
+        is_available: $("#editIsAvailable").is(":checked"),
     };
 
     $.ajax({
-      url: `/fields/{{ field.id }}/facilities/add/`,
-      type: "POST",
-      data: data,
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      success: function (response) {
-        alert(response.message);
-        location.reload();
-      },
-      error: function () {
-        alert("Terjadi kesalahan, silakan coba lagi.");
-      },
+        url: `/facilities/update/${facilityId}/`,
+        type: "POST",
+        data: data,
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: function (response) {
+            alert(response.message);
+
+            // Perbarui baris tabel fasilitas
+            const facility = response.facility;
+            const row = $(`#facility-${facility.id}`); // Pastikan ID baris tabel sesuai
+            row.find(".facility-name").text(facility.name);
+            row.find(".facility-description").text(facility.description);
+            row.find(".facility-status").text(facility.is_available ? "Tersedia" : "Tidak Tersedia");
+
+            // Sembunyikan modal edit
+            $("#editModal").addClass("hidden");
+        },
+        error: function () {
+            alert("Terjadi kesalahan saat memperbarui fasilitas.");
+        },
     });
-  });
+});
 
-  // // Contoh AJAX untuk edit fasilitas
-  // function editFacility(facilityId) {
-  //   const data = {
-  //     name: document.getElementById(`facilityName-${facilityId}`).value, // Ambil data nama fasilitas
-  //     description: document.getElementById(`facilityDescription-${facilityId}`)
-  //       .value, // Ambil deskripsi fasilitas
-  //     is_available: document.getElementById(`facilityAvailable-${facilityId}`)
-  //       .checked
-  //       ? "true"
-  //       : "false", // Status ketersediaan
-  //   };
 
-  //   fetch(`/facilities/update/${facilityId}/`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "X-CSRFToken": getCSRFToken(),
-  //     }, // Sertakan CSRF token
-  //     body: JSON.stringify(data), // Kirimkan data sebagai JSON
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       alert(data.message); // Tampilkan pesan sukses atau error
-  //       if (data.message.includes("berhasil")) {
-  //         location.reload(); // Reload halaman jika berhasil
-  //       }
-  //     })
-  //     .catch((error) => console.error("Error:", error)); // Tangani error jika ada
-  // }
+  function showEditFacilityModal(facilityId) {
+    $.ajax({
+        url: `/facilities/${facilityId}/get/`,
+        method: "GET",
+        success: function (response) {
+            // Isi form dengan data dari response
+            $("#editName").val(response.name);
+            $("#editDescription").val(response.description);
+            $("#editIsAvailable").prop("checked", response.is_available);
+
+            // Simpan ID fasilitas di form modal
+            $("#editFacilityForm").data("facility-id", facilityId);
+
+            // Tampilkan modal edit
+            $("#editModal").removeClass("hidden");
+        },
+        error: function () {
+            alert("Gagal mengambil data fasilitas.");
+        },
+    });
+}
+
+
+  // Contoh AJAX untuk edit fasilitas
+  function editFacility(facilityId) {
+    const data = {
+      name: document.getElementById(`facilityName-${facilityId}`).value, // Ambil data nama fasilitas
+      description: document.getElementById(`facilityDescription-${facilityId}`).value, // Ambil deskripsi fasilitas
+      is_available: document.getElementById(`facilityAvailable-${facilityId}`)
+        .checked
+        ? "true"
+        : "false", // Status ketersediaan
+    };
+
+    fetch(`/facilities/update/${facilityId}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),
+      }, // Sertakan CSRF token
+      body: JSON.stringify(data), // Kirimkan data sebagai JSON
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message); // Tampilkan pesan sukses atau error
+        if (data.message.includes("berhasil")) {
+          location.reload(); // Reload halaman jika berhasil
+        }
+      })
+      .catch((error) => console.error("Error:", error)); // Tangani error jika ada
+  }
 
   // Hapus fasilitas
   function deleteFacility(facility_id) {

@@ -133,7 +133,7 @@
           id="editName"
           name="name"
           type="text"
-          value="{{ field.name }}"
+          value="{{ fields.name }}"
           required
           class="border rounded px-4 py-2 w-full"
         />
@@ -267,10 +267,10 @@
       let rows = "";
       data.forEach((field) => {
         rows += `
-                      <tr>
-                          <td class=" text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
-                          <td class="text-center px-6 py-4">${field.sport_type}</td>
-                          <td class="text-center px-6 py-4">
+                      <tr id="field-{{ field.id }}">
+                          <td class="field-name text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
+                          <td class="field-sport-type text-center px-6 py-4">${field.sport_type}</td>
+                          <td class="field-action text-center px-6 py-4">
                               <button id="editButton" class=" w-20 bg-yellow-500 px-4 py-2 rounded " onclick="showEditModal(${field.id})">Edit</button>
                               <button id="deleteButton" class=" w-20 bg-red-500 px-4 py-2 rounded mt-2 " onclick="deleteField(${field.id})">Hapus</button>
                           </td>
@@ -317,68 +317,75 @@
   });
 
   // // Tampilkan form edit ketika tombol Edit diklik
-  // function showeditform() {
-  //   document.getElementById("editModal").classList.remove("hidden");
-  // }
-  // function hideeditform() {
-  //   document.getElementById("editModal").classList.add("hidden");
-  // }
+  function showeditform() {
+    document.getElementById("editModal").classList.remove("hidden");
+  }
+  function hideeditform() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
 
-  // function showEditModal(fieldId) {
-  //   const csrfToken = getCookie("csrftoken"); // Ambil CSRF token jika diperlukan
+  function showEditModal(fieldId) {
+    $.ajax({
+        url: `/fields/${fieldId}/get/`,
+        method: "GET",
+        success: function (response) {
+            // Isi form dengan data dari response
+            $("#editName").val(response.name);
+            $("#editLocation").val(response.location);
+            $("#editSportType").val(response.sport_type);
+            $("#editPricePerHour").val(response.price_per_hour);
+            $("#editJamoperasional").val(response.operating_hours);
+            $("#editIsAvailable").prop("checked", response.is_available);
 
-  //   // Ambil data field dari server
-  //   $.ajax({
-  //     url: `/fields/${fieldId}/`, // Endpoint detail field
-  //     method: "GET",
-  //     headers: { "X-CSRFToken": csrfToken },
-  //     success: function (response) {
-  //       // Isi form dengan data dari response
-  //       $("#editName").val(response.name);
-  //       $("#editLocation").val(response.location);
-  //       $("#editSportType").val(response.sport_type);
-  //       $("#editPricePerHour").val(response.price_per_hour);
-  //       $("#editJamoperasional").val(response.operating_hours);
-  //       $("#editIsAvailable").prop("checked", response.is_available);
+            $("#editFieldForm").data("field-id", fieldId);
+            // Tampilkan modal edit
+            $("#editModal").removeClass("hidden");
+        },
+        error: function () {
+            alert("Gagal mengambil data lapangan.");
+        },
+    });
+  }
 
-  //       // Tampilkan modal
-  //       $("#editModal").removeClass("hidden");
-  //     },
-  //     error: function () {
-  //       alert("Gagal mengambil data lapangan.");
-  //     },
-  //   });
-  // }
 
-  // // Kirim data update ke server menggunakan API
-  // $("#editFieldForm").submit(function (e) {
-  //   e.preventDefault();
+  // Kirim data update ke server menggunakan API
+  $("#editFieldForm").on("submit", function (e) {
+    e.preventDefault();
 
-  //   const fieldId = $("#editFieldForm").data("field-id"); // Simpan ID field di atribut data
-  //   const formData = {
-  //     name: $("#editName").val(),
-  //     location: $("#editLocation").val(),
-  //     sport_type: $("#editSportType").val(),
-  //     price_per_hour: $("#editPricePerHour").val(),
-  //     operating_hours: $("#editJamoperasional").val(),
-  //     is_available: $("#editIsAvailable").is(":checked"),
-  //   };
+    const fieldId = $("#editFieldForm").data("field-id"); // Simpan ID field di atribut data
+    const data = {
+      name: $("#editName").val(),
+      location: $("#editLocation").val(),
+      sport_type: $("#editSportType").val(),
+      price_per_hour: $("#editPricePerHour").val(),
+      operating_hours: $("#editJamoperasional").val(),
+      is_available: $("#editIsAvailable").is(":checked"),
+    };
 
-  //   $.ajax({
-  //     url: `/fields/update/${fieldId}/`,
-  //     method: "POST",
-  //     data: formData,
-  //     headers: { "X-CSRFToken": getCookie("csrftoken") },
-  //     success: function (response) {
-  //       alert(response.message);
-  //       loadFields(); // Reload tabel lapangan
-  //       $("#editModal").addClass("hidden"); // Tutup modal
-  //     },
-  //     error: function () {
-  //       alert("Gagal memperbarui lapangan.");
-  //     },
-  //   });
-  // });
+    $.ajax({
+      url: `/fields/update/${fieldId}/`,
+      method: "POST",
+      data: data,
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+      success: function (response) {
+        alert(response.message);
+        // loadFields(); // Reload tabel lapangan
+        // Perbarui baris tabel field
+        const field = response.field;
+        const row = $(`#field-${field.id}`); // Pastikan ID baris tabel sesuai
+        row.find(".field-name").text(field.name);
+        row.find(".field-location").text(field.location);
+        row.find(".field-sport-type").text(field.sport_type);
+        row.find(".field-price").text(`Rp ${field.price_per_hour}`);
+        row.find(".field-availability").text(field.is_available ? "Tersedia" : "Tidak Tersedia");
+
+        $("#editModal").addClass("hidden"); // Sembunyikan modal edit
+      },
+      error: function () {
+        alert("Gagal memperbarui lapangan.");
+      },
+    });
+  });
 
   //   // Contoh AJAX untuk edit lapangan
   //   function editField(fieldId) {
