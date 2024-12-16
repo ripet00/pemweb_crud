@@ -236,6 +236,35 @@
   }
 
   // Tambah fasilitas menggunakan AJAX
+  $("#addFacilityForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const facilityId = $("#addFacilityForm").data("facility-id"); // Pastikan ID disimpan di atribut form
+    const data = {
+        name: $("#facilityName").val(),
+        description: $("#facilityDescription").val(),
+        is_available: $("#facilityAvailability").is(":checked"),
+    };
+
+    $.ajax({
+      url: `/fields/{{ field.id }}/facilities/add/`,
+      type: "POST",
+      data: data,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: function (response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Terjadi kesalahan, silakan coba lagi.");
+      },
+    });
+});
+
+
+  // edit fasilitas menggunakan AJAX
   $("#editFacilityForm").on("submit", function (e) {
     e.preventDefault();
 
