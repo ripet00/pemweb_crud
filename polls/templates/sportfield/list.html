@@ -13,7 +13,7 @@
     <!-- Data akan diisi menggunakan jQuery -->
   </tbody>
 </table>
-<div class=" mt-4">
+<div class="mt-4">
   <button
     class="px-4 py-2 bg-blue-600 text-white rounded mb-4"
     onclick="showAddModal()"
@@ -104,7 +104,6 @@
         <button
           type="submit"
           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          
         >
           Tambah Lapangan
         </button>
@@ -114,95 +113,126 @@
 </div>
 
 <!-- Form Edit (Disembunyikan secara default) -->
-<form
-  method="POST"
-  id="editFieldForm"
-  class="bg-white p-6 rounded shadow mt-6 hidden"
+<!-- Modal Container -->
+<div
+  id="editModal"
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden"
 >
-  {% csrf_token %}
-  <h2 class="text-xl font-bold mb-4">Edit Lapangan</h2>
-  <div class="mb-4">
-    <label for="editName" class="block text-sm font-medium"
-      >Nama Lapangan</label
+  <!-- Modal Content -->
+  <div class="bg-white w-3/4 max-w-lg rounded-lg shadow-lg p-6 relative">
+    <h2 class="text-xl font-bold mb-4">Edit Lapangan</h2>
+
+    <form method="POST" id="editFieldForm">
+      {% csrf_token %}
+      <!-- Nama Lapangan -->
+      <div class="mb-4">
+        <label for="editName" class="block text-sm font-medium"
+          >Nama Lapangan</label
+        >
+        <input
+          id="editName"
+          name="name"
+          type="text"
+          value="{{ field.name }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Lokasi -->
+      <div class="mb-4">
+        <label for="editLocation" class="block text-sm font-medium"
+          >Lokasi</label
+        >
+        <input
+          id="editLocation"
+          name="location"
+          type="text"
+          value="{{ field.location }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Jenis Olahraga -->
+      <div class="mb-4">
+        <label for="editSportType" class="block text-sm font-medium"
+          >Jenis Olahraga</label
+        >
+        <input
+          id="editSportType"
+          name="sport_type"
+          type="text"
+          value="{{ field.sport_type }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Harga per Jam -->
+      <div class="mb-4">
+        <label for="editPricePerHour" class="block text-sm font-medium"
+          >Harga per Jam</label
+        >
+        <input
+          id="editPricePerHour"
+          name="price_per_hour"
+          type="number"
+          step="0.01"
+          value="{{ field.price_per_hour }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Jam Operasional -->
+      <div class="mb-4">
+        <label for="editJamOperasional" class="block text-sm font-medium"
+          >Jam Operasional</label
+        >
+        <input
+          id="editJamoperasional"
+          name="Jam Operasional"
+          type="text"
+          value="{{ field.operating_hours }}"
+          required
+          class="border rounded px-4 py-2 w-full"
+        />
+      </div>
+
+      <!-- Ketersediaan -->
+      <div class="mb-4">
+        <label for="editIsAvailable" class="block text-sm font-medium"
+          >Ketersediaan</label
+        >
+        <input id="editIsAvailable" name="is_available" type="checkbox" {{
+        field.is_available|yesno:"checked," }} class="h-5 w-5" />
+      </div>
+
+      <!-- Tombol -->
+      <div class="flex justify-end gap-4">
+        <button
+          type="button"
+          onclick="hideeditform()"
+          class="bg-gray-400 text-white px-4 py-2 rounded"
+        >
+          Batal
+        </button>
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+
+    <!-- Tombol Tutup di Pojok -->
+    <button
+      class="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+      onclick="hideeditform()"
     >
-    <input
-      id="editName"
-      name="name"
-      type="text"
-      value="{{ field.name }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
+      &times;
+    </button>
   </div>
-
-  <div class="mb-4">
-    <label for="editLocation" class="block text-sm font-medium">Lokasi</label>
-    <input
-      id="editLocation"
-      name="location"
-      type="text"
-      value="{{ field.location }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editSportType" class="block text-sm font-medium"
-      >Jenis Olahraga</label
-    >
-    <input
-      id="editSportType"
-      name="sport_type"
-      type="text"
-      value="{{ field.sport_type }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editPricePerHour" class="block text-sm font-medium"
-      >Harga per Jam</label
-    >
-    <input
-      id="editPricePerHour"
-      name="price_per_hour"
-      type="number"
-      step="0.01"
-      value="{{ field.fielddetail.price_per_hour }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editJamOperasional" class="block text-sm font-medium"
-      >Jam Operasional</label
-    >
-    <input
-      id="editJamoperasional"
-      name="Jam Operasional"
-      type="text"
-      value="{{ field.fielddetail.operating_hours }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editIsAvailable" class="block text-sm font-medium"
-      >Ketersediaan</label
-    >
-    <input id="editIsAvailable" name="is_available" type="checkbox" {{
-    field.fielddetail.is_available|yesno:"checked," }} class="h-5 w-5">
-  </div>
-
-  <!-- Tombol Simpan -->
-  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
-    Simpan Perubahan
-  </button>
-</form>
+</div>
 
 <script>
   // Ambil CSRF token
@@ -231,11 +261,6 @@
     document.getElementById("addFieldModal").classList.add("hidden");
   }
 
-  // // Tampilkan form edit ketika tombol Edit diklik
-  // document.getElementById("editButton").onclick = function () {
-  //   document.getElementById("editFieldForm").classList.remove("hidden");
-  // };
-
   // Load data lapangan
   function loadFields() {
     $.getJSON("/fields/", function (data) {
@@ -246,8 +271,8 @@
                           <td class=" text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
                           <td class="text-center px-6 py-4">${field.sport_type}</td>
                           <td class="text-center px-6 py-4">
-                              <button id="editButton" class="bg-yellow-500 px-4 py-2 rounded" onclick="editField(${field.id})">Edit</button>
-                              <button  id="deleteButton" class="bg-red-500 px-4 py-2 rounded " onclick="deleteField(${field.id})">Hapus</button>
+                              <button id="editButton" class=" w-20 bg-yellow-500 px-4 py-2 rounded " onclick = showeditform()>Edit</button>
+                              <button  id="deleteButton" class=" w-20 bg-red-500 px-4 py-2 rounded mt-2 " onclick="deleteField(${field.id})">Hapus</button>
                           </td>
                       </tr>
                   `;
@@ -291,58 +316,66 @@
     });
   });
 
-  //   // Kirim data update ke server menggunakan API
-  //   document.getElementById("editFieldForm").onsubmit = function (e) {
-  //     e.preventDefault(); // Cegah refresh halaman
-  //     const fieldId = "{{ field.id }}"; // ID lapangan dari context
-  //     const formData = new FormData(this); // Ambil data dari form
+  // Tampilkan form edit ketika tombol Edit diklik
+  function showeditform() {
+    document.getElementById("editModal").classList.remove("hidden");
+  }
+  function hideeditform() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
 
-  //     // Kirim permintaan update ke server
+  // Kirim data update ke server menggunakan API
+  document.getElementById("editFieldForm").onsubmit = function (e) {
+    e.preventDefault(); // Cegah refresh halaman
+    const fieldId = "{{ field.id }}"; // ID lapangan dari context
+    const formData = new FormData(this); // Ambil data dari form
+
+    // Kirim permintaan update ke server
+    fetch(`/fields/update/${fieldId}/`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
+          .value,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        alert(data.message); // Tampilkan pesan sukses/gagal
+        if (data.message === "Lapangan berhasil diperbarui!") {
+          location.reload(); // Refresh halaman jika berhasil
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan saat memperbarui lapangan.");
+      });
+  };
+
+  //   // Contoh AJAX untuk edit lapangan
+  //   function editField(fieldId) {
+  //     const data = {
+  //       name: document.getElementById("fieldName").value,
+  //       location: document.getElementById("fieldLocation").value,
+  //       operating_hours: document.getElementById("fieldOperatingHours").value,
+  //       price_per_hour: document.getElementById("fieldPrice").value,
+  //       is_available: document.getElementById("fieldAvailable").checked
+  //         ? "true"
+  //         : "false",
+  //     };
+
   //     fetch(`/fields/update/${fieldId}/`, {
   //       method: "POST",
-  //       body: formData,
   //       headers: {
-  //         "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
-  //           .value,
+  //         "Content-Type": "application/json",
+  //         "X-CSRFToken": getCSRFToken(),
   //       },
+  //       body: JSON.stringify(data),
   //     })
   //       .then((response) => response.json())
-  //       .then((data) => {
-  //         alert(data.message); // Tampilkan pesan sukses/gagal
-  //         if (data.message === "Lapangan berhasil diperbarui!") {
-  //           location.reload(); // Refresh halaman jika berhasil
-  //         }
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error:", error);
-  //         alert("Terjadi kesalahan saat memperbarui lapangan.");
-  //       });
-  //   };
-
-  //   //   // Contoh AJAX untuk edit lapangan
-  //   //   function editField(fieldId) {
-  //   //     const data = {
-  //   //       name: document.getElementById("fieldName").value,
-  //   //       location: document.getElementById("fieldLocation").value,
-  //   //       operating_hours: document.getElementById("fieldOperatingHours").value,
-  //   //       price_per_hour: document.getElementById("fieldPrice").value,
-  //   //       is_available: document.getElementById("fieldAvailable").checked
-  //   //         ? "true"
-  //   //         : "false",
-  //   //     };
-
-  //   //     fetch(`/fields/update/${fieldId}/`, {
-  //   //       method: "POST",
-  //   //       headers: {
-  //   //         "Content-Type": "application/json",
-  //   //         "X-CSRFToken": getCSRFToken(),
-  //   //       },
-  //   //       body: JSON.stringify(data),
-  //   //     })
-  //   //       .then((response) => response.json())
-  //   //       .then((data) => alert(data.message))
-  //   //       .catch((error) => console.error("Error:", error));
-  //   //   }
+  //       .then((data) => alert(data.message))
+  //       .catch((error) => console.error("Error:", error));
+  //   }
 
   //   // Kirim permintaan hapus data ke server
   //   document.getElementById("deleteButton").onclick = function () {
