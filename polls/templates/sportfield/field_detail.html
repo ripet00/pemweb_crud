@@ -1,193 +1,269 @@
-<!-- templates/sportfield/field_detail.html -->
 {% extends 'index.html' %} {% block content %}
+<a href="/" class="text-xl font-bold"> « kembali </a>
+<h1 class="text-2xl font-bold mb-4 mt-8">Detail Lapangan: {{ field.name }}</h1>
 
-<a href="/sportfield/list/" class="py-8 text-black text-2xl font-bold">
-  ← Kembali ke Daftar Lapangan
-</a>
-
-<h1 class="text-2xl font-bold mb-4 mt-16">Detail Lapangan</h1>
-
-<!-- Tampilkan Detail Lapangan -->
-<div class="bg-gray-100 p-6 rounded shadow mb-6">
-  <p><strong>Nama Lapangan:</strong> {{ field.name }}</p>
+<div class="mb-6">
+  <h2 class="text-lg font-bold">Informasi Lapangan</h2>
   <p><strong>Lokasi:</strong> {{ field.location }}</p>
-  <p><strong>Jenis Olahraga:</strong> {{ field.sport_type }}</p>
-  <p>
-    <strong>Harga per Jam:</strong> Rp {{ field.fielddetail.price_per_hour }}
-  </p>
-  <p><strong>Fasilitas:</strong> {{ field.fielddetail.facilities }}</p>
+  <p><strong>Tipe Olahraga:</strong> {{ field.sport_type }}</p>
+  <p><strong>Harga per Jam:</strong> Rp {{ field.price_per_hour }}</p>
   <p>
     <strong>Ketersediaan:</strong>
-    {% if field.fielddetail.is_available %} Tersedia {% else %} Tidak Tersedia
-    {% endif %}
+    {% if field.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
   </p>
 </div>
 
-<!-- Tombol untuk Edit dan Hapus -->
-<div class="flex gap-4">
-  <!-- Button Edit -->
-  <button id="editButton" class="bg-yellow-600 text-white px-4 py-2 rounded">
-    Edit Data
-  </button>
-
-  <!-- Button Hapus -->
-  <button id="deleteButton" class="bg-red-600 text-white px-4 py-2 rounded">
-    Hapus Data
-  </button>
+<div class="mb-6">
+  <h2 class="text-lg font-bold">Daftar Fasilitas</h2>
+  <table class="min-w-full bg-white border table-auto">
+    <thead>
+      <tr class="bg-gray-800 text-white">
+        <th class="text-start px-6 py-3">Nama Fasilitas</th>
+        <th class="py-3">Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="fieldTable" class="divide-y">
+      {% for facility in facilities %}
+      <tr>
+        <td class="text-start px-6 py-4">{{ facility.name }}</td>
+        <td class="text-center px-6 py-4">
+          <button
+            id="editButton"
+            class="bg-yellow-500 px-4 py-2 rounded"
+            onclick="editFacility('{{ facility.id }}')"
+          >
+            Edit
+          </button>
+          <button
+            id="deleteButton"
+            class="bg-red-500 px-4 py-2 rounded"
+            onclick="deleteFacility('{{ facility.id }}')"
+          >
+            Hapus
+          </button>
+        </td>
+      </tr>
+      {% endfor %} {% if facilities|length == 0 %}
+      <tr>
+        <td colspan="2" class="text-center py-4">
+          Tidak ada fasilitas tersedia.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
 </div>
 
-<!-- Form Edit (Disembunyikan secara default) -->
-<form
-  method="POST"
-  id="editFieldForm"
-  class="bg-white p-6 rounded shadow mt-6 hidden"
+<button
+  class="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+  onclick="showAddFacilityModal()"
 >
-  {% csrf_token %}
-  <h2 class="text-xl font-bold mb-4">Edit Lapangan</h2>
-  <div class="mb-4">
-    <label for="editName" class="block text-sm font-medium"
-      >Nama Lapangan</label
-    >
-    <input
-      id="editName"
-      name="name"
-      type="text"
-      value="{{ field.name }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
+  Tambah Fasilitas
+</button>
 
-  <div class="mb-4">
-    <label for="editLocation" class="block text-sm font-medium">Lokasi</label>
-    <input
-      id="editLocation"
-      name="location"
-      type="text"
-      value="{{ field.location }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
+<!-- Modal Tambah Fasilitas -->
+<div
+  id="addFacilityModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
+>
+  <div class="bg-white p-6 rounded">
+    <h2 class="text-lg font-bold mb-4">Tambah Fasilitas</h2>
+    <form id="addFacilityForm" class="space-y-4">
+      <input
+        type="text"
+        id="facilityName"
+        placeholder="Nama Fasilitas"
+        class="p-2 border rounded w-full"
+      />
+      <textarea
+        id="facilityDescription"
+        placeholder="Deskripsi"
+        class="p-2 border rounded w-full"
+      ></textarea>
+      <label class="block">
+        <input type="checkbox" id="facilityAvailability" /> Tersedia
+      </label>
+      <div class="flex justify-between">
+        <button
+          type="button"
+          class="px-4 py-2 bg-gray-600 text-white rounded"
+          onclick="closeAddFacilityModal()"
+        >
+          Batal
+        </button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
+          Tambah
+        </button>
+      </div>
+    </form>
   </div>
+</div>
 
-  <div class="mb-4">
-    <label for="editSportType" class="block text-sm font-medium"
-      >Jenis Olahraga</label
-    >
-    <input
-      id="editSportType"
-      name="sport_type"
-      type="text"
-      value="{{ field.sport_type }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editPricePerHour" class="block text-sm font-medium"
-      >Harga per Jam</label
-    >
-    <input
-      id="editPricePerHour"
-      name="price_per_hour"
-      type="number"
-      step="0.01"
-      value="{{ field.fielddetail.price_per_hour }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editFacilities" class="block text-sm font-medium"
-      >Fasilitas</label
-    >
-    <input
-      id="editFacilities"
-      name="facilities"
-      type="text"
-      value="{{ field.fielddetail.facilities }}"
-      required
-      class="border rounded px-4 py-2 w-full"
-    />
-  </div>
-
-  <div class="mb-4">
-    <label for="editIsAvailable" class="block text-sm font-medium"
-      >Ketersediaan</label
-    >
-    <input id="editIsAvailable" name="is_available" type="checkbox" {{
-    field.fielddetail.is_available|yesno:"checked," }} class="h-5 w-5">
-  </div>
-
-  <!-- Tombol Simpan -->
-  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
-    Simpan Perubahan
-  </button>
-</form>
+<!-- <table>
+  <thead>
+    <tr>
+      <th>Nama Fasilitas</th>
+      <th>Deskripsi</th>
+      <th>Ketersediaan</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for facility in facilities %}
+    <tr>
+      <td>
+        <input
+          type="text"
+          id="facilityName-{{ facility.id }}"
+          value="{{ facility.name }}"
+        />
+      </td>
+      <td>
+        <textarea id="facilityDescription-{{ facility.id }}">
+{{ facility.description }}</textarea
+        >
+      </td>
+      <td>
+        <input
+          type="checkbox"
+          id="facilityAvailable-{{ facility.id }}"
+          {%
+          if
+          facility.is_available
+          %}checked{%
+          endif
+          %}
+        />
+      </td>
+      <td>
+        <button onclick="editFacility('{{ facility.id }}')">Simpan</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table> -->
 
 <script>
-  // Tampilkan form edit ketika tombol Edit diklik
-  document.getElementById("editButton").onclick = function () {
-    document.getElementById("editFieldForm").classList.remove("hidden");
-  };
-
-  // Kirim data update ke server menggunakan API
-  document.getElementById("editFieldForm").onsubmit = function (e) {
-    e.preventDefault(); // Cegah refresh halaman
-    const fieldId = "{{ field.id }}"; // ID lapangan dari context
-    const formData = new FormData(this); // Ambil data dari form
-
-    // Kirim permintaan update ke server
-    fetch(`/sportfield/fields/update/${fieldId}/`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
-          .value,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        alert(data.message); // Tampilkan pesan sukses/gagal
-        if (data.message === "Lapangan berhasil diperbarui!") {
-          location.reload(); // Refresh halaman jika berhasil
+  // Fungsi untuk mendapatkan CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Terjadi kesalahan saat memperbarui lapangan.");
-      });
-  };
-
-  // Kirim permintaan hapus data ke server
-  document.getElementById("deleteButton").onclick = function () {
-    const fieldId = "{{ field.id }}";
-    if (confirm("Apakah Anda yakin ingin menghapus lapangan ini?")) {
-      fetch(`/sportfield/fields/delete/${fieldId}/`, {
-        method: "POST",
-        headers: {
-          "X-CSRFToken": document.querySelector('[name="csrfmiddlewaretoken"]')
-            .value,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          alert(data.message);
-          if (data.message === "Lapangan berhasil dihapus!") {
-            window.location.href = "/sportfield/list/"; // Redirect ke daftar lapangan
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("Terjadi kesalahan saat menghapus lapangan.");
-        });
+      }
     }
-  };
-</script>
+    return cookieValue;
+  }
 
+  // Tampilkan modal tambah fasilitas
+  function showAddFacilityModal() {
+    document.getElementById("addFacilityModal").classList.remove("hidden");
+  }
+
+  // Tutup modal tambah fasilitas
+  function closeAddFacilityModal() {
+    document.getElementById("addFacilityModal").classList.add("hidden");
+  }
+
+  function loadFields() {
+    $.getJSON("/fields/", function (data) {
+      let rows = "";
+      data.forEach((field) => {
+        rows += `
+                      <tr>
+                          <td class=" text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
+                          <td class="text-center px-6 py-4">${field.sport_type}</td>
+                          <td class="text-center px-6 py-4">
+                              <button id="editButton" class="bg-yellow-500 px-4 py-2 rounded" onclick="editField(${field.id})">Edit</button>
+                              <button  id="deleteButton" class="bg-red-500 px-4 py-2 rounded " onclick="deleteField(${field.id})">Hapus</button>
+                          </td>
+                      </tr>
+                  `;
+      });
+      $("#fieldTable").html(rows);
+    });
+  }
+
+  // Tambah fasilitas menggunakan AJAX
+  $("#addFacilityForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const data = {
+      name: $("#facilityName").val(),
+      description: $("#facilityDescription").val(),
+      is_available: $("#facilityAvailability").is(":checked"),
+    };
+
+    $.ajax({
+      url: `/fields/{{ field.id }}/facilities/add/`,
+      type: "POST",
+      data: data,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: function (response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Terjadi kesalahan, silakan coba lagi.");
+      },
+    });
+  });
+
+  // // Contoh AJAX untuk edit fasilitas
+  // function editFacility(facilityId) {
+  //   const data = {
+  //     name: document.getElementById(`facilityName-${facilityId}`).value, // Ambil data nama fasilitas
+  //     description: document.getElementById(`facilityDescription-${facilityId}`)
+  //       .value, // Ambil deskripsi fasilitas
+  //     is_available: document.getElementById(`facilityAvailable-${facilityId}`)
+  //       .checked
+  //       ? "true"
+  //       : "false", // Status ketersediaan
+  //   };
+
+  //   fetch(`/facilities/update/${facilityId}/`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "X-CSRFToken": getCSRFToken(),
+  //     }, // Sertakan CSRF token
+  //     body: JSON.stringify(data), // Kirimkan data sebagai JSON
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       alert(data.message); // Tampilkan pesan sukses atau error
+  //       if (data.message.includes("berhasil")) {
+  //         location.reload(); // Reload halaman jika berhasil
+  //       }
+  //     })
+  //     .catch((error) => console.error("Error:", error)); // Tangani error jika ada
+  // }
+
+  // // Hapus fasilitas
+  // function deleteFacility(facility_id) {
+  //   if (confirm("Apakah Anda yakin ingin menghapus fasilitas ini?")) {
+  //     $.ajax({
+  //       url: `/facilities/delete/${facility_id}/`,
+  //       type: "POST",
+  //       headers: {
+  //         "X-CSRFToken": getCookie("csrftoken"),
+  //       },
+  //       success: function (response) {
+  //         alert(response.message);
+  //         location.reload();
+  //       },
+  //       error: function () {
+  //         alert("Terjadi kesalahan, silakan coba lagi.");
+  //       },
+  //     });
+  //   }
+  // }
+</script>
 {% endblock %}
-<!-- <td class="px-6 py-4">
-    <button class="text-red-500" onclick="deleteField(${field.id})">Hapus</button>
-</td> -->
