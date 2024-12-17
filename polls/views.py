@@ -89,7 +89,7 @@ def update_field(request, field_id):
             field.sport_type = request.POST.get('sport_type')
             field.operating_hours = request.POST.get('operating_hours')
             field.price_per_hour = float(request.POST.get('price_per_hour'))
-            field.is_available = request.POST.get('is_available') == 'on'
+            field.is_available = request.POST.get('is_available') == 'true'
             
             field.save()
 
