@@ -3,7 +3,7 @@
 
 <table class="min-w-full bg-white border table-auto">
   <thead>
-    <tr class="bg-gray-800 text-white">
+    <tr class="bg-gray-700 text-white">
       <th class="text-start px-6 py-3">Nama Lapangan</th>
       <th class="py-3">Tipe Olahraga</th>
       <th class="py-3">Aksi</th>
@@ -267,7 +267,7 @@
       let rows = "";
       data.forEach((field) => {
         rows += `
-                      <tr id="field-{{ field.id }}">
+                      <tr id="field-{{ field.id }}" class="bg-gray-200 odd:bg-white font-bold">
                           <td class="field-name text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
                           <td class="field-sport-type text-center px-6 py-4">${field.sport_type}</td>
                           <td class="field-action text-center px-6 py-4">
