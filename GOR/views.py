@@ -41,4 +41,22 @@ def list_fields(request):
     ]
     return JsonResponse(data, safe=False)
 
+# Tambah lapangan
+def add_field(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        location = request.POST['location']
+        sport_type = request.POST['sport_type']
+        operating_hours = request.POST['operating_hours']
+        price_per_hour = request.POST['price_per_hour']
+        is_available = request.POST['is_available'] == 'true'
 
+        field = Field.objects.create(
+            name=name,
+            location=location,
+            sport_type=sport_type,
+            operating_hours=operating_hours,
+            price_per_hour=price_per_hour,
+            is_available=is_available,
+        )
+        return JsonResponse({'message': 'Lapangan berhasil ditambahkan!'})
