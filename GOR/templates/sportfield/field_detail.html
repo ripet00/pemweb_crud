@@ -26,9 +26,14 @@
     </thead>
     <tbody id="fieldTable" class="divide-y">
       {% for facility in facilities %}
-      <tr id="facility-{{ facility.id }}" class="bg-gray-200 odd:bg-white font-bold">
+      <tr
+        id="facility-{{ facility.id }}"
+        class="bg-gray-200 odd:bg-white font-bold"
+      >
         <td class="facility-name text-start px-6 py-4">{{ facility.name }}</td>
-        <td class="facility-description text-center px-6 py-4">{{ facility.description }}</td>
+        <td class="facility-description text-center px-6 py-4">
+          {{ facility.description }}
+        </td>
         <td class="facility-status text-center px-6 py-4">
           <p>
             {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
@@ -107,5 +112,79 @@
   </div>
 </div>
 
+<script>
+    // Fungsi untuk mendapatkan CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Tampilkan modal tambah fasilitas
+    function showAddFacilityModal() {
+      document.getElementById("addFacilityModal").classList.remove("hidden");
+    }
+
+    // Tutup modal tambah fasilitas
+    function closeAddFacilityModal() {
+      document.getElementById("addFacilityModal").classList.add("hidden");
+    }
+
+    function loadFields() {
+      $.getJSON("/fields/", function (data) {
+        let rows = "";
+        data.forEach((field) => {
+          rows += `
+                        <tr>
+                            <td class=" text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
+                            <td class="text-center px-6 py-4">${field.sport_type}</td>
+                            <td class="text-center px-6 py-4">
+                                <button id="editButton" class="bg-yellow-500 px-4 py-2 rounded" onclick="editField(${field.id})">Edit</button>
+                                <button  id="deleteButton" class="bg-red-500 px-4 py-2 rounded " onclick="deleteField(${field.id})">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+        });
+        $("#fieldTable").html(rows);
+      });
+    }
+
+   // Tambah fasilitas menggunakan AJAX
+  $("#addFacilityForm").on("submit", function (e) {
+    e.preventDefault();
+
+    const facilityId = $("#addFacilityForm").data("facility-id"); // Pastikan ID disimpan di atribut form
+    const data = {
+        name: $("#facilityName").val(),
+        description: $("#facilityDescription").val(),
+        is_available: $("#facilityAvailability").is(":checked"),
+    };
+
+    $.ajax({
+      url: `/fields/{{ field.id }}/facilities/add/`,
+      type: "POST",
+      data: data,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: function (response) {
+        alert(response.message);
+        location.reload();
+      },
+      error: function () {
+        alert("Terjadi kesalahan, silakan coba lagi.");
+      },
+    });
+});
+</script>
 
 {% endblock %}
