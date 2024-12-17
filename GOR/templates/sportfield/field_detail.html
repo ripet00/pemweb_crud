@@ -1,0 +1,111 @@
+{% extends 'index.html' %} {% block content %}
+<a href="/" class="text-xl font-bold"> « kembali </a>
+<h1 class="text-2xl font-bold mb-4 mt-8">Detail Lapangan: {{ field.name }}</h1>
+
+<div class="mb-6">
+  <h2 class="text-lg font-bold">Informasi Lapangan</h2>
+  <p><strong>Lokasi:</strong> {{ field.location }}</p>
+  <p><strong>Tipe Olahraga:</strong> {{ field.sport_type }}</p>
+  <p><strong>Harga per Jam:</strong> Rp {{ field.price_per_hour }}</p>
+  <p>
+    <strong>Ketersediaan:</strong>
+    {% if field.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+  </p>
+</div>
+
+<div class="mb-6">
+  <h2 class="text-lg font-bold">Daftar Fasilitas</h2>
+  <table class="min-w-full bg-white border table-auto">
+    <thead>
+      <tr class="bg-gray-800 text-white">
+        <th class="text-start px-6 py-3">Nama Fasilitas</th>
+        <th class="text-center px-6 py-3">Deskripsi</th>
+        <th class="text-center px-6 py-3">Status</th>
+        <th class="py-3">Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="fieldTable" class="divide-y">
+      {% for facility in facilities %}
+      <tr id="facility-{{ facility.id }}" class="bg-gray-200 odd:bg-white font-bold">
+        <td class="facility-name text-start px-6 py-4">{{ facility.name }}</td>
+        <td class="facility-description text-center px-6 py-4">{{ facility.description }}</td>
+        <td class="facility-status text-center px-6 py-4">
+          <p>
+            {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+          </p>
+        </td>
+        <td class="text-center px-6 py-4">
+          <button
+            id="editButton"
+            class="w-20 bg-yellow-500 px-4 py-2 rounded"
+            onclick="showEditFacilityModal('{{ facility.id }}')"
+          >
+            Edit
+          </button>
+          <button
+            id="deleteButton"
+            class="w-20 bg-red-500 px-4 py-2 rounded"
+            onclick="deleteFacility('{{ facility.id }}')"
+          >
+            Hapus
+          </button>
+        </td>
+      </tr>
+      {% endfor %} {% if facilities|length == 0 %}
+      <tr>
+        <td colspan="2" class="text-center py-4">
+          Tidak ada fasilitas tersedia.
+        </td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<button
+  class="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+  onclick="showAddFacilityModal()"
+>
+  Tambah Fasilitas
+</button>
+
+<!-- Modal Tambah Fasilitas -->
+<div
+  id="addFacilityModal"
+  class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
+>
+  <div class="bg-white p-6 rounded">
+    <h2 class="text-lg font-bold mb-4">Tambah Fasilitas</h2>
+    <form id="addFacilityForm" class="space-y-4">
+      <input
+        type="text"
+        id="facilityName"
+        placeholder="Nama Fasilitas"
+        class="p-2 border rounded w-full"
+      />
+      <textarea
+        id="facilityDescription"
+        placeholder="Deskripsi"
+        class="p-2 border rounded w-full"
+      ></textarea>
+      <label class="block">
+        <input type="checkbox" id="facilityAvailability" /> Tersedia
+      </label>
+      <div class="flex justify-between">
+        <button
+          type="button"
+          class="px-4 py-2 bg-gray-600 text-white rounded"
+          onclick="closeAddFacilityModal()"
+        >
+          Batal
+        </button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
+          Tambah
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{% endblock %}
