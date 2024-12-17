@@ -23,3 +23,22 @@ def field_detail(request, field_id):
         'facilities': facilities   # Mengirim daftar fasilitas terkait field
     })
 
+
+# Daftar lapangan
+def list_fields(request):
+    fields = Field.objects.all()
+    data = [
+        {
+            'id': field.id,
+            'name': field.name,
+            'sport_type': field.sport_type,
+            # 'location': field.location,
+            # 'operating_hours': field.operating_hours,
+            # 'price_per_hour': float(field.price_per_hour),
+            # 'is_available': field.is_available,
+        }
+        for field in fields
+    ]
+    return JsonResponse(data, safe=False)
+
+
