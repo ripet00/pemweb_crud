@@ -41,6 +41,23 @@ def list_fields(request):
     ]
     return JsonResponse(data, safe=False)
 
+# Mendapatkan data detail lapangan (untuk form edit)
+def get_field(request, field_id):
+    try:
+        field = Field.objects.get(id=field_id)
+        data = {
+            'id': field.id,
+            'name': field.name,
+            'location': field.location,
+            'sport_type': field.sport_type,
+            'price_per_hour': field.price_per_hour,
+            'operating_hours': field.operating_hours,
+            'is_available': field.is_available,
+        }
+        return JsonResponse(data, safe=False)
+    except Field.DoesNotExist:
+        return JsonResponse({'error': 'Lapangan tidak ditemukan'}, status=404)
+    
 # Tambah lapangan
 def add_field(request):
     if request.method == 'POST':
@@ -61,7 +78,53 @@ def add_field(request):
         )
         return JsonResponse({'message': 'Lapangan berhasil ditambahkan!'})
 
+# Edit Lapangan
+def update_field(request, field_id):
+    if request.method == 'POST':
+        try:
+            field = Field.objects.get(id=field_id)
+            field.name = request.POST.get('name')
+            field.location = request.POST.get('location')
+            field.sport_type = request.POST.get('sport_type')
+            field.operating_hours = request.POST.get('operating_hours')
+            field.price_per_hour = float(request.POST.get('price_per_hour'))
+            field.is_available = request.POST.get('is_available') == 'true'
+            
+            field.save()
 
+            # Kembalikan data yang diperbarui
+            data = {
+                'id': field.id,
+                'name': field.name,
+                'location': field.location,
+                'sport_type': field.sport_type,
+                'price_per_hour': field.price_per_hour,
+                'operating_hours': field.operating_hours,
+                'is_available': field.is_available,
+            }
+
+            return JsonResponse({'message': 'Lapangan berhasil diperbarui!', 'field': data}, status=200)
+        except Field.DoesNotExist:
+            return JsonResponse({'error': 'Lapangan tidak ditemukan!'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': f'Terjadi kesalahan: {e}'}, status=400)
+    return JsonResponse({'error': 'Metode tidak diizinkan!'}, status=405)
+
+# Mendapatkan data detail fasilitas (untuk form edit)
+def get_facility(request, facility_id):
+    try:
+        facility = Facility.objects.get(id=facility_id)
+        data = {
+            'id': facility.id,
+            'name': facility.name,
+            'description': facility.description,
+            'is_available': facility.is_available,
+        }
+        return JsonResponse(data, safe=False)
+    except Facility.DoesNotExist:
+        return JsonResponse({'error': 'Fasilitas tidak ditemukan'}, status=404)
+    
+    
 # Tambah fasilitas
 def add_facility(request, field_id):
     if request.method == 'POST':
@@ -77,3 +140,28 @@ def add_facility(request, field_id):
             is_available=is_available,
         )
         return JsonResponse({'message': 'Fasilitas berhasil ditambahkan!'})
+    
+# Edit Fasilitas
+def edit_facility(request, facility_id):
+    if request.method == 'POST':
+        try:
+            facility = Facility.objects.get(id=facility_id)
+            facility.name = request.POST.get('name', facility.name)
+            facility.description = request.POST.get('description', facility.description)
+            facility.is_available = request.POST.get('is_available', 'false') == 'true'
+            facility.save()
+
+             # Kembalikan data yang diperbarui
+            data = {
+                'id': facility.id,
+                'name': facility.name,
+                'description': facility.description,
+                'is_available': facility.is_available,
+            }
+
+            return JsonResponse({'message': 'Fasilitas berhasil diperbarui!', 'facility': data}, status=200)
+        except Facility.DoesNotExist:
+            return JsonResponse({'error': 'Fasilitas tidak ditemukan!'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': f'Terjadi kesalahan: {e}'}, status=400)
+    return JsonResponse({'error': 'Metode tidak diizinkan!'}, status=405)
