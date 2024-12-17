@@ -1,0 +1,199 @@
+{% extends 'index.html' %} {% block content %}
+<h1 class="text-2xl font-bold mb-4">DAFTAR LAPANGAN</h1>
+
+<table class="min-w-full bg-white border table-auto">
+  <thead>
+    <tr class="bg-gray-700 text-white">
+      <th class="text-start px-6 py-3">Nama Lapangan</th>
+      <th class="py-3">Tipe Olahraga</th>
+      <th class="py-3">Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="fieldTable" class="divide-y">
+    <!-- Data akan diisi menggunakan jQuery -->
+  </tbody>
+</table>
+<div class="mt-4">
+  <button
+    class="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+    onclick="showAddModal()"
+  >
+    Tambah Lapangan
+  </button>
+</div>
+
+<!-- Modal Tambah Lapangan -->
+<div
+  id="addFieldModal"
+  class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+>
+  <div class="bg-white p-6 rounded shadow-md w-1/2">
+    <h2 class="text-xl font-bold mb-4">Tambah Lapangan Baru</h2>
+    <form id="addFieldForm" class="space-y-4">
+      <div>
+        <label for="name" class="block text-sm font-medium"
+          >Nama Lapangan</label
+        >
+        <input
+          type="text"
+          id="name"
+          placeholder="Nama Lapangan"
+          class="p-2 border rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label for="location" class="block text-sm font-medium">Lokasi</label>
+        <input
+          type="text"
+          id="location"
+          placeholder="Lokasi"
+          class="p-2 border rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label for="sport_type" class="block text-sm font-medium"
+          >Jenis Olahraga</label
+        >
+        <input
+          type="text"
+          id="sport_type"
+          placeholder="Jenis Olahraga"
+          class="p-2 border rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label for="price_per_hour" class="block text-sm font-medium"
+          >Harga per Jam</label
+        >
+        <input
+          type="number"
+          id="price_per_hour"
+          placeholder="Harga per Jam"
+          class="p-2 border rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label for="operating_hours" class="block text-sm font-medium"
+          >Jam Operasional</label
+        >
+        <input
+          type="text"
+          id="operating_hours"
+          placeholder="Jam Operasional"
+          class="p-2 border rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-medium">
+          <input type="checkbox" id="is_available" class="mr-2" /> Tersedia
+        </label>
+      </div>
+      <div class="flex justify-end space-x-2">
+        <button
+          type="button"
+          onclick="hideAddModal()"
+          class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Batal
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Tambah Lapangan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+    // Ambil CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  
+    // Menampilkan modal
+    function showAddModal() {
+      document.getElementById("addFieldModal").classList.remove("hidden");
+    }
+  
+    // Menyembunyikan modal
+    function hideAddModal() {
+      document.getElementById("addFieldModal").classList.add("hidden");
+    }
+  
+    // Load data lapangan
+    function loadFields() {
+      $.getJSON("/fields/", function (data) {
+        let rows = "";
+        data.forEach((field) => {
+          rows += `
+                        <tr id="field-{{ field.id }}" class="bg-gray-200 odd:bg-white font-bold">
+                            <td class="field-name text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
+                            <td class="field-sport-type text-center px-6 py-4">${field.sport_type}</td>
+                            <td class="field-action text-center px-6 py-4">
+                                <button id="editButton" class=" w-20 bg-yellow-500 px-4 py-2 rounded " onclick="showEditModal(${field.id})">Edit</button>
+                                <button id="deleteButton" class=" w-20 bg-red-500 px-4 py-2 rounded mt-2 " onclick="deleteField(${field.id})">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+        });
+        $("#fieldTable").html(rows);
+      });
+    }
+  
+    $(document).ready(function () {
+      loadFields();
+    });
+  
+    // Menambah lapangan menggunakan AJAX
+    $("#addFieldForm").on("submit", function (e) {
+      e.preventDefault();
+  
+      const data = {
+        name: $("#name").val(),
+        location: $("#location").val(),
+        sport_type: $("#sport_type").val(),
+        price_per_hour: $("#price_per_hour").val(),
+        operating_hours: $("#operating_hours").val(),
+        is_available: $("#is_available").is(":checked"),
+      };
+  
+      $.ajax({
+        url: "/fields/add/",
+        type: "POST",
+        data: data,
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"), // Menyertakan CSRF token di header
+        },
+        success: function (response) {
+          alert(response.message);
+          loadFields(); // reload data setelah berhasil tambah
+          hideAddModal();
+        },
+        error: function (xhr, status, error) {
+          alert("Terjadi kesalahan, silakan coba lagi.");
+        },
+      });
+    });
+  
+  </script>
+
+{% endblock %}

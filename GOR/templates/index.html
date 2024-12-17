@@ -3,9 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Crud Lapangan</title>
+    <title>Sportfield</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+      @layer base {
+        body {
+          font-family: "Plus Jakarta Sans", sans-serif;
+        }
+        .font-lexend {
+          font-family: "Lexend Deca", sans-serif;
+        }
+      }
+    </style>
   </head>
-  <body>
-    <h1>Teknik</h1>
+  <body class="bg-gray-100 font-lexend">
+    <div class="container mx-auto py-8 px-8">
+      {% block content %}{% endblock %}
+    </div>
   </body>
 </html>
