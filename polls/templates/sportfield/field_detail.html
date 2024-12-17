@@ -26,7 +26,7 @@
     </thead>
     <tbody id="fieldTable" class="divide-y">
       {% for facility in facilities %}
-      <tr id="facility-{{ facility.id }}">
+      <tr id="facility-{{ facility.id }}" class="bg-gray-200 odd:bg-white font-bold">
         <td class="facility-name text-start px-6 py-4">{{ facility.name }}</td>
         <td class="facility-description text-center px-6 py-4">{{ facility.description }}</td>
         <td class="facility-status text-center px-6 py-4">
