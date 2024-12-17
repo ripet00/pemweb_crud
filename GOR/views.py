@@ -60,3 +60,20 @@ def add_field(request):
             is_available=is_available,
         )
         return JsonResponse({'message': 'Lapangan berhasil ditambahkan!'})
+
+
+# Tambah fasilitas
+def add_facility(request, field_id):
+    if request.method == 'POST':
+        field = get_object_or_404(Field, id=field_id)
+        name = request.POST['name']
+        description = request.POST['description']
+        is_available = request.POST['is_available'] == 'true'
+
+        Facility.objects.create(
+            field=field,
+            name=name,
+            description=description,
+            is_available=is_available,
+        )
+        return JsonResponse({'message': 'Fasilitas berhasil ditambahkan!'})
