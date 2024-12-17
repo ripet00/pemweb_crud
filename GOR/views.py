@@ -13,3 +13,13 @@ def render_field_list(request):
         'fields': fields  # Kirim data field ke list.html
     })
 
+
+# Detail lapangan dengan daftar fasilitas terkait
+def field_detail(request, field_id):
+    field = get_object_or_404(Field, id=field_id)
+    facilities = field.facilities.all()
+    return render(request, 'sportfield/field_detail.html', {
+        'field': field,            # Mengirim objek field
+        'facilities': facilities   # Mengirim daftar fasilitas terkait field
+    })
+
