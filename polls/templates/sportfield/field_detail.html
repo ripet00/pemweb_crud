@@ -4,12 +4,14 @@
 
 <div class="mb-6">
   <h2 class="text-lg font-bold">Informasi Lapangan</h2>
-  <p><strong>Lokasi:</strong> {{ field.location }}</p>
-  <p><strong>Tipe Olahraga:</strong> {{ field.sport_type }}</p>
-  <p><strong>Harga per Jam:</strong> Rp {{ field.price_per_hour }}</p>
+  <p><strong>Lokasi<span class="ms-32 ps-2">:</span> {{ field.location }}</strong> </p>
+  <p><strong>Jenis Olahraga<span class="ms-16">:</span> {{ field.sport_type }}</strong></p>
+  <p><strong>Jam Operasional<span class="ms-12">:</span> {{ field.operating_hours }}</strong> </p>
+  <p><strong>Harga per Jam<span class="ms-14 ps-2">:</span> Rp {{ field.price_per_hour }}</strong> </p>
   <p>
-    <strong>Ketersediaan:</strong>
+    <strong>Ketersediaan<span class="ms-20">:</span>
     {% if field.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+  </strong>
   </p>
 </div>
 
@@ -18,10 +20,10 @@
   <table class="min-w-full bg-white border table-auto">
     <thead>
       <tr class="bg-gray-800 text-white">
-        <th class="text-start px-6 py-3">Nama Fasilitas</th>
-        <th class="text-center px-6 py-3">Deskripsi</th>
-        <th class="text-center px-6 py-3">Status</th>
-        <th class="py-3">Aksi</th>
+        <th class="text-start px-6 py-3 w-1/5">Nama Fasilitas</th>
+        <th class="text-center px-6 py-3 w-2/5">Deskripsi</th>
+        <th class="text-center px-6 py-3 w-1/5">Status</th>
+        <th class="py-3 w-1/5">Aksi</th>
       </tr>
     </thead>
     <tbody id="fieldTable" class="divide-y">
@@ -31,7 +33,12 @@
         <td class="facility-description text-center px-6 py-4">{{ facility.description }}</td>
         <td class="facility-status text-center px-6 py-4">
           <p>
-            {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+            {% if facility.is_available %} 
+            <span class="px-2 py-1 text-md font-semibold rounded-full bg-green-100 text-green-700">
+              Tersedia
+            </span> {% else %} <span class="px-2 py-1 text-md font-semibold rounded-full bg-red-100 text-red-700">
+              Tidak Tersedia
+            </span> {% endif %}
           </p>
         </td>
         <td class="text-center px-6 py-4">

@@ -84,11 +84,11 @@ def update_field(request, field_id):
     if request.method == 'POST':
         try:
             field = Field.objects.get(id=field_id)
-            field.name = request.POST.get('name')
-            field.location = request.POST.get('location')
-            field.sport_type = request.POST.get('sport_type')
-            field.operating_hours = request.POST.get('operating_hours')
-            field.price_per_hour = float(request.POST.get('price_per_hour'))
+            field.name = request.POST.get('name',  field.name)
+            field.location = request.POST.get('location',field.location)
+            field.sport_type = request.POST.get('sport_type',field.sport_type)
+            field.operating_hours = request.POST.get('operating_hours',field.operating_hours)
+            field.price_per_hour = float(request.POST.get('price_per_hour',field.price_per_hour))
             field.is_available = request.POST.get('is_available') == 'true'
             
             field.save()
