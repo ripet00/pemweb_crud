@@ -234,7 +234,102 @@
   </div>
 </div>
 
+<!-- Custom Confirm Modal -->
+<div
+  id="confirmModal"
+  class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 hidden"
+>
+  <div class="bg-white p-6 rounded-lg shadow-lg w-1/3 text-center">
+    <h2 id="confirmMessage" class="text-lg font-semibold mb-4">
+      Apakah Anda yakin ingin melanjutkan?
+    </h2>
+    <div class="flex justify-center gap-4">
+      <button
+        id="confirmCancel"
+        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+      >
+        Batal
+      </button>
+      <button
+        id="confirmOk"
+        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Alert Container -->
+<div id="customAlert" class="hidden fixed top-5 right-5 z-50">
+  <!-- Alert Content akan dimasukkan lewat jQuery -->
+</div>
+
 <script>
+  // Fungsi untuk menampilkan custom confirm
+  function customConfirm(message, callback) {
+    $("#confirmMessage").text(message); // Set pesan di modal
+    $("#confirmModal").removeClass("hidden"); // Tampilkan modal
+
+    // Jika "OK" ditekan
+    $("#confirmOk")
+      .off("click")
+      .on("click", function () {
+        callback(true); // Eksekusi callback dengan nilai "true"
+        $("#confirmModal").addClass("hidden"); // Sembunyikan modal
+      });
+
+    // Jika "Batal" ditekan
+    $("#confirmCancel")
+      .off("click")
+      .on("click", function () {
+        callback(false); // Eksekusi callback dengan nilai "false"
+        $("#confirmModal").addClass("hidden"); // Sembunyikan modal
+      });
+  }
+
+  // Fungsi untuk menampilkan custom alert
+  function showCustomAlert(message, type = "success") {
+    const alertColors = {
+      success: "bg-green-500",
+      error: "bg-red-500",
+      warning: "bg-yellow-500",
+      info: "bg-blue-500",
+    };
+
+    // Template alert dengan Tailwind CSS
+    const alertTemplate = `
+      <div class="flex items-center justify-between ${alertColors[type]} text-white px-4 py-2 rounded shadow-lg mb-2 animate-fadeIn">
+        <span>${message}</span>
+        <button class="ml-4 focus:outline-none" onclick="removeAlert(this)">
+          &times;
+        </button>
+      </div>
+    `;
+
+    // Tambahkan alert ke container
+    $("#customAlert").append(alertTemplate).removeClass("hidden");
+
+    // Hapus alert otomatis setelah 3 detik
+    setTimeout(() => {
+      $("#customAlert")
+        .children()
+        .first()
+        .fadeOut(500, function () {
+          $(this).remove();
+        });
+    }, 5000);
+  }
+
+  // Fungsi untuk menghapus alert secara manual
+  function removeAlert(button) {
+    $(button)
+      .parent()
+      .fadeOut(500, function () {
+        $(this).remove();
+      });
+  }
+
   // Ambil CSRF token
   function getCookie(name) {
     let cookieValue = null;
@@ -306,12 +401,12 @@
         "X-CSRFToken": getCookie("csrftoken"), // Menyertakan CSRF token di header
       },
       success: function (response) {
-        alert(response.message);
+        showCustomAlert(response.message, "success");
         loadFields(); // reload data setelah berhasil tambah
         hideAddModal();
       },
       error: function (xhr, status, error) {
-        alert("Terjadi kesalahan, silakan coba lagi.");
+        showCustomAlert("Terjadi kesalahan, silakan coba lagi.", "error");
       },
     });
   });
@@ -342,7 +437,7 @@
         $("#editModal").removeClass("hidden");
       },
       error: function () {
-        alert("Gagal mengambil data lapangan.");
+        showCustomAlert("Gagal mengambil data lapangan.", "error");
       },
     });
   }
@@ -367,44 +462,41 @@
       data: data,
       headers: { "X-CSRFToken": getCookie("csrftoken") },
       success: function (response) {
-        alert(response.message);
-        // Perbarui baris tabel field
-        const field = response.field;
-        const row = $(`#field-${field.id}`); // Pastikan ID baris tabel sesuai
-        row.find(".field-name").text(field.name);
-        row.find(".field-location").text(field.location);
-        row.find(".field-sport-type").text(field.sport_type);
-        row.find(".field-price").text(`Rp ${field.price_per_hour}`);
-        row
-          .find(".field-availability")
-          .text(field.is_available ? "Tersedia" : "Tidak Tersedia");
+        showCustomAlert(response.message, "success");
+        loadFields(); // Reload tabel lapangan
 
         $("#editModal").addClass("hidden"); // Sembunyikan modal edit
       },
       error: function () {
-        alert("Gagal memperbarui lapangan.");
+        showCustomAlert("Gagal memperbarui lapangan.", "error");
       },
     });
   });
 
   // Hapus Lapangan
-  function deleteField(fieldId) {
-    if (confirm("Apakah anda ingin menghapus lapangan ini ?")) {
-      $.ajax({
-        url: `/fields/delete/${fieldId}/`,
-        type: "POST",
-        headers: {
-          "X-CSRFToken": getCookie("csrftoken"),
-        },
-        success: function (response) {
-          alert(response.message);
-          loadFields();
-        },
-        error: function () {
-          alert("Terjadi kesalahan saat menghapus lapangan.");
-        },
-      });
-    }
+  function deleteField(field_id) {
+    customConfirm(
+      "Apakah Anda yakin ingin menghapus lapangan ini?",
+      function (isConfirmed) {
+        if (isConfirmed) {
+          $.ajax({
+            url: `/fields/delete/${field_id}/`,
+            type: "POST",
+            headers: { "X-CSRFToken": getCookie("csrftoken") },
+            success: function (response) {
+              showCustomAlert(response.message, "success"); // Alert sukses
+              loadFields();
+            },
+            error: function () {
+              showCustomAlert(
+                "error",
+                "Terjadi kesalahan saat menghapus lapangan."
+              );
+            },
+          });
+        }
+      }
+    );
   }
 </script>
 {% endblock %}
