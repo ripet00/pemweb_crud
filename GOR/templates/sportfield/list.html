@@ -326,27 +326,26 @@
 
   function showEditModal(fieldId) {
     $.ajax({
-        url: `/fields/${fieldId}/get/`,
-        method: "GET",
-        success: function (response) {
-            // Isi form dengan data dari response
-            $("#editName").val(response.name);
-            $("#editLocation").val(response.location);
-            $("#editSportType").val(response.sport_type);
-            $("#editPricePerHour").val(response.price_per_hour);
-            $("#editJamoperasional").val(response.operating_hours);
-            $("#editIsAvailable").prop("checked", response.is_available);
+      url: `/fields/${fieldId}/get/`,
+      method: "GET",
+      success: function (response) {
+        // Isi form dengan data dari response
+        $("#editName").val(response.name);
+        $("#editLocation").val(response.location);
+        $("#editSportType").val(response.sport_type);
+        $("#editPricePerHour").val(response.price_per_hour);
+        $("#editJamoperasional").val(response.operating_hours);
+        $("#editIsAvailable").prop("checked", response.is_available);
 
-            $("#editFieldForm").data("field-id", fieldId);
-            // Tampilkan modal edit
-            $("#editModal").removeClass("hidden");
-        },
-        error: function () {
-            alert("Gagal mengambil data lapangan.");
-        },
+        $("#editFieldForm").data("field-id", fieldId);
+        // Tampilkan modal edit
+        $("#editModal").removeClass("hidden");
+      },
+      error: function () {
+        alert("Gagal mengambil data lapangan.");
+      },
     });
   }
-
 
   // Kirim data update ke server menggunakan API
   $("#editFieldForm").on("submit", function (e) {
@@ -369,7 +368,6 @@
       headers: { "X-CSRFToken": getCookie("csrftoken") },
       success: function (response) {
         alert(response.message);
-        // loadFields(); // Reload tabel lapangan
         // Perbarui baris tabel field
         const field = response.field;
         const row = $(`#field-${field.id}`); // Pastikan ID baris tabel sesuai
@@ -377,7 +375,9 @@
         row.find(".field-location").text(field.location);
         row.find(".field-sport-type").text(field.sport_type);
         row.find(".field-price").text(`Rp ${field.price_per_hour}`);
-        row.find(".field-availability").text(field.is_available ? "Tersedia" : "Tidak Tersedia");
+        row
+          .find(".field-availability")
+          .text(field.is_available ? "Tersedia" : "Tidak Tersedia");
 
         $("#editModal").addClass("hidden"); // Sembunyikan modal edit
       },
@@ -385,7 +385,26 @@
         alert("Gagal memperbarui lapangan.");
       },
     });
-  })
+  });
 
+  // Hapus Lapangan
+  function deleteField(fieldId) {
+    if (confirm("Apakah anda ingin menghapus lapangan ini ?")) {
+      $.ajax({
+        url: `/fields/delete/${fieldId}/`,
+        type: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: function (response) {
+          alert(response.message);
+          loadFields();
+        },
+        error: function () {
+          alert("Terjadi kesalahan saat menghapus lapangan.");
+        },
+      });
+    }
+  }
 </script>
 {% endblock %}
