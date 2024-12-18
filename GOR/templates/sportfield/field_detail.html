@@ -4,14 +4,33 @@
 
 <div class="mb-6">
   <h2 class="text-lg font-bold">Informasi Lapangan</h2>
-  <p><strong>Lokasi<span class="ms-32 ps-2">:</span> {{ field.location }}</strong> </p>
-  <p><strong>Jenis Olahraga<span class="ms-16">:</span> {{ field.sport_type }}</strong></p>
-  <p><strong>Jam Operasional<span class="ms-12">:</span> {{ field.operating_hours }}</strong> </p>
-  <p><strong>Harga per Jam<span class="ms-14 ps-2">:</span> Rp {{ field.price_per_hour }}</strong> </p>
   <p>
-    <strong>Ketersediaan<span class="ms-20">:</span>
-    {% if field.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
-  </strong>
+    <strong
+      >Lokasi<span class="ms-32 ps-2">:</span> {{ field.location }}</strong
+    >
+  </p>
+  <p>
+    <strong
+      >Jenis Olahraga<span class="ms-16">:</span> {{ field.sport_type }}</strong
+    >
+  </p>
+  <p>
+    <strong
+      >Jam Operasional<span class="ms-12">:</span>
+      {{field.operating_hours}}</strong
+    >
+  </p>
+  <p>
+    <strong
+      >Harga per Jam<span class="ms-14 ps-2">:</span> Rp{{
+      field.price_per_hour}}</strong
+    >
+  </p>
+  <p>
+    <strong
+      >Ketersediaan<span class="ms-20">:</span>
+      {% if field.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+    </strong>
   </p>
 </div>
 
@@ -38,7 +57,8 @@
         </td>
         <td class="facility-status text-center px-6 py-4">
           <p>
-            {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia {% endif %}
+            {% if facility.is_available %} Tersedia {% else %} Tidak Tersedia
+            {%endif %}
           </p>
         </td>
         <td class="text-center px-6 py-4">
@@ -189,68 +209,68 @@
 </div>
 
 <script>
-    // Fungsi untuk mendapatkan CSRF token
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, name.length + 1) === name + "=") {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
+  // Fungsi untuk mendapatkan CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
         }
       }
-      return cookieValue;
     }
+    return cookieValue;
+  }
 
-    // Tampilkan modal tambah fasilitas
-    function showAddFacilityModal() {
-      document.getElementById("addFacilityModal").classList.remove("hidden");
-    }
+  // Tampilkan modal tambah fasilitas
+  function showAddFacilityModal() {
+    document.getElementById("addFacilityModal").classList.remove("hidden");
+  }
 
-    // Tutup modal tambah fasilitas
-    function closeAddFacilityModal() {
-      document.getElementById("addFacilityModal").classList.add("hidden");
-    }
+  // Tutup modal tambah fasilitas
+  function closeAddFacilityModal() {
+    document.getElementById("addFacilityModal").classList.add("hidden");
+  }
 
-    // Tampilkan form edit ketika tombol Edit diklik
-    function showeditform() {
-      document.getElementById("editModal").classList.remove("hidden");
-    }
-    function hideeditform() {
-      document.getElementById("editModal").classList.add("hidden");
-    }
+  // Tampilkan form edit ketika tombol Edit diklik
+  function showeditform() {
+    document.getElementById("editModal").classList.remove("hidden");
+  }
+  function hideeditform() {
+    document.getElementById("editModal").classList.add("hidden");
+  }
 
-    function loadFields() {
-      $.getJSON("/fields/", function (data) {
-        let rows = "";
-        data.forEach((field) => {
-          rows += `
+  function loadFields() {
+    $.getJSON("/fields/", function (data) {
+      let rows = "";
+      data.forEach((field) => {
+        rows += `
                         <tr>
                             <td class=" text-start px-6 py-4"><a href="/fields/${field.id}/" class="text-blue-500">${field.name}</a></td>
                             <td class="text-center px-6 py-4">${field.sport_type}</td>
                             <td class="text-center px-6 py-4">
                                 <button id="editButton" class="bg-yellow-500 px-4 py-2 rounded" onclick="editField(${field.id})">Edit</button>
-                                <button  id="deleteButton" class="bg-red-500 px-4 py-2 rounded " onclick="deleteField(${field.id})">Hapus</button>
+                                <button  id="deleteButton" class="bg-red-500 px-4 py-2 rounded" onclick="deleteField(${field.id})">Hapus</button>
                             </td>
                         </tr>
                     `;
-        });
-        $("#fieldTable").html(rows);
       });
-    }
+      $("#fieldTable").html(rows);
+    });
+  }
 
-   // Tambah fasilitas menggunakan AJAX
+  // Tambah fasilitas menggunakan AJAX
   $("#addFacilityForm").on("submit", function (e) {
     e.preventDefault();
 
     const facilityId = $("#addFacilityForm").data("facility-id"); // Pastikan ID disimpan di atribut form
     const data = {
-        name: $("#facilityName").val(),
-        description: $("#facilityDescription").val(),
-        is_available: $("#facilityAvailability").is(":checked"),
+      name: $("#facilityName").val(),
+      description: $("#facilityDescription").val(),
+      is_available: $("#facilityAvailability").is(":checked"),
     };
 
     $.ajax({
@@ -268,7 +288,7 @@
         alert("Terjadi kesalahan, silakan coba lagi.");
       },
     });
-});
+  });
 
   // edit fasilitas menggunakan AJAX
   $("#editFacilityForm").on("submit", function (e) {
@@ -276,66 +296,67 @@
 
     const facilityId = $("#editFacilityForm").data("facility-id"); // Pastikan ID disimpan di atribut form
     const data = {
-        name: $("#editName").val(),
-        description: $("#editDescription").val(),
-        is_available: $("#editIsAvailable").is(":checked"),
+      name: $("#editName").val(),
+      description: $("#editDescription").val(),
+      is_available: $("#editIsAvailable").is(":checked"),
     };
 
     $.ajax({
-        url: `/facilities/update/${facilityId}/`,
-        type: "POST",
-        data: data,
-        headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-        },
-        success: function (response) {
-            alert(response.message);
+      url: `/facilities/update/${facilityId}/`,
+      type: "POST",
+      data: data,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      success: function (response) {
+        alert(response.message);
 
-            // Perbarui baris tabel fasilitas
-            const facility = response.facility;
-            const row = $(`#facility-${facility.id}`); // Pastikan ID baris tabel sesuai
-            row.find(".facility-name").text(facility.name);
-            row.find(".facility-description").text(facility.description);
-            row.find(".facility-status").text(facility.is_available ? "Tersedia" : "Tidak Tersedia");
+        // Perbarui baris tabel fasilitas
+        const facility = response.facility;
+        const row = $(`#facility-${facility.id}`); // Pastikan ID baris tabel sesuai
+        row.find(".facility-name").text(facility.name);
+        row.find(".facility-description").text(facility.description);
+        row
+          .find(".facility-status")
+          .text(facility.is_available ? "Tersedia" : "Tidak Tersedia");
 
-            // Sembunyikan modal edit
-            $("#editModal").addClass("hidden");
-        },
-        error: function () {
-            alert("Terjadi kesalahan saat memperbarui fasilitas.");
-        },
+        // Sembunyikan modal edit
+        $("#editModal").addClass("hidden");
+      },
+      error: function () {
+        alert("Terjadi kesalahan saat memperbarui fasilitas.");
+      },
     });
-});
-
+  });
 
   function showEditFacilityModal(facilityId) {
     $.ajax({
-        url: `/facilities/${facilityId}/get/`,
-        method: "GET",
-        success: function (response) {
-            // Isi form dengan data dari response
-            $("#editName").val(response.name);
-            $("#editDescription").val(response.description);
-            $("#editIsAvailable").prop("checked", response.is_available);
+      url: `/facilities/${facilityId}/get/`,
+      method: "GET",
+      success: function (response) {
+        // Isi form dengan data dari response
+        $("#editName").val(response.name);
+        $("#editDescription").val(response.description);
+        $("#editIsAvailable").prop("checked", response.is_available);
 
-            // Simpan ID fasilitas di form modal
-            $("#editFacilityForm").data("facility-id", facilityId);
+        // Simpan ID fasilitas di form modal
+        $("#editFacilityForm").data("facility-id", facilityId);
 
-            // Tampilkan modal edit
-            $("#editModal").removeClass("hidden");
-        },
-        error: function () {
-            alert("Gagal mengambil data fasilitas.");
-        },
+        // Tampilkan modal edit
+        $("#editModal").removeClass("hidden");
+      },
+      error: function () {
+        alert("Gagal mengambil data fasilitas.");
+      },
     });
-}
-
+  }
 
   // Contoh AJAX untuk edit fasilitas
   function editFacility(facilityId) {
     const data = {
       name: document.getElementById(`facilityName-${facilityId}`).value, // Ambil data nama fasilitas
-      description: document.getElementById(`facilityDescription-${facilityId}`).value, // Ambil deskripsi fasilitas
+      description: document.getElementById(`facilityDescription-${facilityId}`)
+        .value, // Ambil deskripsi fasilitas
       is_available: document.getElementById(`facilityAvailable-${facilityId}`)
         .checked
         ? "true"
@@ -358,6 +379,26 @@
         }
       })
       .catch((error) => console.error("Error:", error)); // Tangani error jika ada
+  }
+
+  // Hapus Fasilitas
+  function deleteFacility(facilityId) {
+    if (confirm("Apakah Anda yakin ingin menghapus fasilitas ini?")) {
+      $.ajax({
+        url: `/facilities/delete/${facility_id}/`,
+        type: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        success: function (response) {
+          alert(response.message);
+          location.reload();
+        },
+        error: function () {
+          alert("Terjadi kesalahan, silakan coba lagi.");
+        },
+      });
+    }
   }
 </script>
 
